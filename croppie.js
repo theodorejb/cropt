@@ -245,7 +245,7 @@
 
         if (this.options.resizeControls.width) {
             hr = document.createElement('div');
-            hr.classList.add('cr-resizer-horisontal');
+            hr.classList.add('cr-resizer-horizontal');
             wrap.appendChild(hr);
         }
 
@@ -882,7 +882,6 @@
             bottom = num(points[3]),
             width = right-left,
             height = bottom-top,
-            circle = data.circle,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d'),
             canvasWidth = data.outputWidth || width,
@@ -932,14 +931,7 @@
         }
 
         ctx.drawImage(this.elements.preview, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-        if (circle) {
-            ctx.fillStyle = '#fff';
-            ctx.globalCompositeOperation = 'destination-in';
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.fill();
-        }
+
         return canvas;
     }
 
@@ -1073,7 +1065,6 @@
             size = opts.size || 'viewport',
             format = opts.format,
             quality = opts.quality,
-            circle = typeof opts.circle === 'boolean' ? opts.circle : (self.options.viewport.type === 'circle'),
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
             prom;
@@ -1099,7 +1090,6 @@
             data.quality = quality;
         }
 
-        data.circle = circle;
         data.url = self.data.url;
 
         prom = new Promise(function (resolve) {

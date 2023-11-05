@@ -1,6 +1,6 @@
 var Demo = (function() {
 	function popupResult(result) {
-		var html = '<img src="' + result.src + '" />';
+		var html = '<img src="' + result.src + '" class="' + result.viewport + '" />';
 		Swal.fire({
 			title: '',
 			html: html,
@@ -33,11 +33,11 @@ var Demo = (function() {
 		mi.addEventListener('click', function (ev) {
 			cropper1.result({
 				type: 'rawcanvas',
-				circle: true,
             	format: 'png'
             }).then(function (canvas) {
 				popupResult({
-					src: canvas.toDataURL()
+					src: canvas.toDataURL(),
+					viewport: cropper1.options.viewport.type,
 				});
 			});
 		});
@@ -139,7 +139,8 @@ var Demo = (function() {
 				size: 'viewport'
 			}).then(function (resp) {
 				popupResult({
-					src: resp
+					src: resp,
+					viewport: uploadCrop.options.viewport.type,
 				});
 			});
 		});

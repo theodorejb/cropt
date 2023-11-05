@@ -1,12 +1,3 @@
-/* 
-Colors
-#20C1C7
-#204648
-#189094
-#61CED2
-#0C4648
-*/
-
 html {
     scroll-behavior: smooth;
 }
@@ -23,6 +14,10 @@ body {
     color: #222;
     min-height: 100%;
     height: auto;
+}
+
+img.circle {
+    border-radius: 50%;
 }
 
 body,

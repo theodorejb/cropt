@@ -42,13 +42,13 @@
 }
 
 .croppie-container .cr-resizer-vertical,
-.croppie-container .cr-resizer-horisontal {
+.croppie-container .cr-resizer-horizontal {
   position: absolute;
   pointer-events: all;
 }
 
 .croppie-container .cr-resizer-vertical::after,
-.croppie-container .cr-resizer-horisontal::after {
+.croppie-container .cr-resizer-horizontal::after {
     display: block;
     position: absolute;
     box-sizing: border-box;
@@ -71,14 +71,14 @@
     margin-left: -5px;
 }
 
-.croppie-container .cr-resizer-horisontal {
+.croppie-container .cr-resizer-horizontal {
   right: -5px;
   cursor: col-resize;
   width: 10px;
   height: 100%;
 }
 
-.croppie-container .cr-resizer-horisontal::after {
+.croppie-container .cr-resizer-horizontal::after {
     top: 50%;
     margin-top: -5px;
 }
