@@ -107,12 +107,6 @@ c.method(args);</code></pre>
                             <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
                             <span class="default">Default</span><code class="language-javascript">''</code>
                         </li>
-                        <li id="enableExif">
-                            <strong class="focus">enableExif</strong><em>boolean</em>
-                            <p>Enable exif orientation reading.  Tells Croppie to read exif orientation from the image data and orient the image correctly before rendering to the page.</p>
-                            <p>Requires <a href="https://github.com/exif-js/exif-js">exif.js</a></p>
-                            <span class="default">Default</span><code class="language-javascript">false</code>
-                        </li>
                         <li id="enableOrientation">
                             <strong class="focus">enableOrientation</strong><em>boolean</em>
                             <p>Enable or disable support for specifying a custom orientation when binding images (See <code class="language-javascript">bind</code> method)</p>
@@ -391,10 +385,9 @@ resize.result('blob').then(function(blob) {
                     <div class="container">
                     <div class="grid">
                         <div class="col-1-2">
-                            <strong>Upload Example (with exif orientation compatability)</strong>
+                            <strong>Upload Example</strong>
                             <pre class="language-javascript"><code class="language-javascript">var uploadEl = document.getElementById('upload-demo');
 var uploadCrop = new Croppie(uploadEl, {
-    enableExif: true,
     viewport: {
         width: 200,
         height: 200,

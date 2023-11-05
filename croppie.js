@@ -76,33 +76,22 @@
     }
 
     /* Utilities */
-    function loadImage(src, doExif) {
+    function loadImage(src) {
         if (!src) { throw 'Source image missing'; }
         
         var img = new Image();
         img.style.opacity = '0';
         return new Promise(function (resolve, reject) {
-            function _resolve() {
-                img.style.opacity = '1';
-                setTimeout(function () {
-                    resolve(img);
-                }, 1);
-            }
-
             img.removeAttribute('crossOrigin');
             if (src.match(/^https?:\/\/|^\/\//)) {
                 img.setAttribute('crossOrigin', 'anonymous');
             }
 
             img.onload = function () {
-                if (doExif) {
-                    EXIF.getData(img, function () {
-                        _resolve();
-                    });
-                }
-                else {
-                    _resolve();
-                }
+                img.style.opacity = '1';
+                setTimeout(function () {
+                    resolve(img);
+                }, 1);
             };
             img.onerror = function (ev) {
                 img.style.opacity = 1;
@@ -117,7 +106,7 @@
     function naturalImageDimensions(img, ornt) {
         var w = img.naturalWidth;
         var h = img.naturalHeight;
-        var orient = ornt || getExifOrientation(img);
+        var orient = ornt || 1;
         if (orient && orient >= 5) {
             var x= w;
             w = h;
@@ -182,10 +171,6 @@
     TransformOrigin.prototype.toString = function () {
         return this.x + 'px ' + this.y + 'px';
     };
-
-    function getExifOrientation(img) {
-        return img.exifdata && img.exifdata.Orientation ? num(img.exifdata.Orientation) : 1;
-    }
 
     function drawCanvas(canvas, img, orientation) {
         var width = img.width,
@@ -252,7 +237,7 @@
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
             boundary, img, viewport, overlay, bw, bh;
 
-        self.options.useCanvas = self.options.enableOrientation || _hasExif.call(self);
+        self.options.useCanvas = self.options.enableOrientation;
         // Properties on class
         self.data = {};
         self.elements = {};
@@ -313,10 +298,6 @@
         if (self.options.enableResize) {
             _initializeResize.call(self);
         }
-    }
-
-    function _hasExif() {
-        return this.options.enableExif && window.EXIF;
     }
 
     function _initializeResize () {
@@ -885,7 +866,6 @@
 
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
-        self.data.orientation = _hasExif.call(self) ? getExifOrientation(self.elements.img) : self.data.orientation;
 
         if (self.options.enableZoom) {
             _updateZoomLimits.call(self, true);
@@ -998,7 +978,7 @@
         canvas.width = img.width;
         canvas.height = img.height;
 
-        var orientation = self.options.enableOrientation && customOrientation || getExifOrientation(img);
+        var orientation = self.options.enableOrientation && customOrientation || 1;
         drawCanvas(canvas, img, orientation);
     }
 
@@ -1014,8 +994,6 @@
             circle = data.circle,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d'),
-            startX = 0,
-            startY = 0,
             canvasWidth = data.outputWidth || width,
             canvasHeight = data.outputHeight || height;
 
@@ -1129,8 +1107,7 @@
         var self = this,
             url,
             points = [],
-            zoom = null,
-            hasExif = _hasExif.call(self);
+            zoom = null;
 
         if (typeof (options) === 'string') {
             url = options;
@@ -1154,7 +1131,7 @@
         self.data.url = url || self.data.url;
         self.data.boundZoom = zoom;
 
-        return loadImage(url, hasExif).then(function (img) {
+        return loadImage(url).then(function (img) {
             _replaceImage.call(self, img);
             if (!points.length) {
                 var natDim = naturalImageDimensions(img);
@@ -1388,7 +1365,6 @@
         enableZoom: true,
         enableResize: false,
         mouseWheelZoom: true,
-        enableExif: false,
         enforceBoundary: true,
         enableOrientation: false,
         enableKeyMovement: true,

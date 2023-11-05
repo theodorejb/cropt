@@ -1,12 +1,6 @@
 var Demo = (function() {
 	function popupResult(result) {
-		var html;
-		if (result.html) {
-			html = result.html;
-		}
-		if (result.src) {
-			html = '<img src="' + result.src + '" />';
-		}
+		var html = '<img src="' + result.src + '" />';
 		Swal.fire({
 			title: '',
 			html: html,
@@ -154,7 +148,6 @@ var Demo = (function() {
 	function demoUpload() {
 		var uploadEl = document.getElementById('upload-demo');
 		var uploadCrop = new Croppie(uploadEl, {
-			enableExif: true,
 			viewport: {
 				width: 200,
 				height: 200,
