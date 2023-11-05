@@ -95,7 +95,6 @@
 }
 
 .croppie-container .cr-slider-wrap {
-    width: 75%;
     margin: 15px auto;
     text-align: center;
 }
@@ -107,5 +106,5 @@
 }
 
 .cr-slider {
-    width: 85%;
+    width: 100%;
 }

@@ -83,14 +83,6 @@ section.who {
     padding: 5px 0;
 }
 
-input[type="number"],
-input[type="text"] {
-    border: 1px solid #aaa;
-    padding: 5px;
-    font-size: 18px;
-    width: 100px;
-}
-
 button,
 a.btn {
     background-color: #189094;
@@ -249,16 +241,8 @@ h2 {
     border: 1px solid #aaa;
 }
 
-/* Sweet alert modifications */
-.sweet-alert {
-    width: auto;
-    max-width: 85%;
-}
-
 /* Grid - subset */
 *, *:after, *:before {
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
 [class*='col-'] {
@@ -296,7 +280,7 @@ h2 {
 	width: 75%;
 }
 
-@media handheld, only screen and (max-width: 767px) {
+@media only screen and (max-width: 767px) {
     .grid {
         width: 100%;
         min-width: 0;
