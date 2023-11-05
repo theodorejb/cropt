@@ -10,17 +10,6 @@
         root.Croppie = factory();
     }
 }(typeof self !== 'undefined' ? self : this, function () {
-    function getExifOffset(ornt, rotate) {
-        var EXIF_NORM = [1,8,3,6];
-        var EXIF_FLIP = [2,7,4,5];
-
-        var arr = EXIF_NORM.indexOf(ornt) > -1 ? EXIF_NORM : EXIF_FLIP,
-            index = arr.indexOf(ornt),
-            offset = (rotate / 90) % arr.length; // 180 = 2%4 = 2 shift exif by 2 indexes
-
-        return arr[(arr.length + index + (offset % arr.length)) % arr.length];
-    }
-
     // Credits to : Andrew Dupont - http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
     function deepExtend(destination, source) {
         destination = destination || {};
@@ -103,16 +92,11 @@
         });
     }
 
-    function naturalImageDimensions(img, ornt) {
-        var w = img.naturalWidth;
-        var h = img.naturalHeight;
-        var orient = ornt || 1;
-        if (orient && orient >= 5) {
-            var x= w;
-            w = h;
-            h = x;
-        }
-        return { width: w, height: h };
+    function naturalImageDimensions(img) {
+        return {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+        };
     }
 
     /* CSS Transform Prototype */
@@ -172,64 +156,6 @@
         return this.x + 'px ' + this.y + 'px';
     };
 
-    function drawCanvas(canvas, img, orientation) {
-        var width = img.width,
-            height = img.height,
-            ctx = canvas.getContext('2d');
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        ctx.save();
-        switch (orientation) {
-          case 2:
-             ctx.translate(width, 0);
-             ctx.scale(-1, 1);
-             break;
-
-          case 3:
-              ctx.translate(width, height);
-              ctx.rotate(180*Math.PI/180);
-              break;
-
-          case 4:
-              ctx.translate(0, height);
-              ctx.scale(1, -1);
-              break;
-
-          case 5:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.rotate(90*Math.PI/180);
-              ctx.scale(1, -1);
-              break;
-
-          case 6:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.rotate(90*Math.PI/180);
-              ctx.translate(0, -height);
-              break;
-
-          case 7:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.rotate(-90*Math.PI/180);
-              ctx.translate(-width, height);
-              ctx.scale(1, -1);
-              break;
-
-          case 8:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.translate(0, width);
-              ctx.rotate(-90*Math.PI/180);
-              break;
-        }
-        ctx.drawImage(img, 0,0, width, height);
-        ctx.restore();
-    }
-
     /* Private Methods */
     function _create() {
         var self = this,
@@ -237,7 +163,6 @@
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
             boundary, img, viewport, overlay, bw, bh;
 
-        self.options.useCanvas = self.options.enableOrientation;
         // Properties on class
         self.data = {};
         self.elements = {};
@@ -246,14 +171,7 @@
         viewport = self.elements.viewport = document.createElement('div');
         img = self.elements.img = document.createElement('img');
         overlay = self.elements.overlay = document.createElement('div');
-
-        if (self.options.useCanvas) {
-            self.elements.canvas = document.createElement('canvas');
-            self.elements.preview = self.elements.canvas;
-        }
-        else {
-            self.elements.preview = img;
-        }
+        self.elements.preview = img;
 
         boundary.classList.add('cr-boundary');
         boundary.setAttribute('aria-dropeffect', 'none');
@@ -889,7 +807,7 @@
             zoomer = self.elements.zoomer,
             scale = parseFloat(zoomer.value),
             boundaryData = self.elements.boundary.getBoundingClientRect(),
-            imgData = naturalImageDimensions(self.elements.img, self.data.orientation),
+            imgData = naturalImageDimensions(self.elements.img),
             vpData = self.elements.viewport.getBoundingClientRect(),
             minW = vpData.width / imgData.width,
             minH = vpData.height / imgData.height,
@@ -955,20 +873,6 @@
         css(self.elements.preview, 'transform', transform.toString());
     }
 
-    function _transferImageToCanvas(customOrientation) {
-        var self = this,
-            canvas = self.elements.canvas,
-            img = self.elements.img,
-            ctx = canvas.getContext('2d');
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        var orientation = self.options.enableOrientation && customOrientation || 1;
-        drawCanvas(canvas, img, orientation);
-    }
-
     function _getCanvas(data) {
         var self = this,
             points = data.points,
@@ -1031,8 +935,6 @@
             sHeight = self._originalImageHeight - sy;
             dHeight = (sHeight / height) * canvasHeight;
         }
-
-        // console.table({ left, right, top, bottom, canvasWidth, canvasHeight, width, height, startX, startY, circle, sx, sy, dx, dy, sWidth, sHeight, dWidth, dHeight });
 
         ctx.drawImage(this.elements.preview, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
         if (circle) {
@@ -1151,13 +1053,9 @@
                 ];
             }
 
-            self.data.orientation = options.orientation || 1;
             self.data.points = points.map(function (p) {
                 return parseFloat(p);
             });
-            if (self.options.useCanvas) {
-                _transferImageToCanvas.call(self, self.data.orientation);
-            }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
             cb && cb();
@@ -1193,7 +1091,6 @@
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
             zoom: scale,
-            orientation: self.data.orientation
         };
     }
 
@@ -1268,28 +1165,6 @@
         _updatePropertiesFromImage.call(this);
     }
 
-    function _rotate(deg) {
-        if (!this.options.useCanvas || !this.options.enableOrientation) {
-            throw 'Croppie: Cannot rotate without enableOrientation && EXIF.js included';
-        }
-
-        var self = this;
-        var canvas = self.elements.canvas;
-
-        self.data.orientation = getExifOffset(self.data.orientation, deg);
-        drawCanvas(canvas, self.elements.img, self.data.orientation);
-        _updateCenterPoint.call(self, true);
-        _updateZoomLimits.call(self);
-
-        // Reverses image dimensions if the degrees of rotation is not divisible by 180.
-        if ((Math.abs(deg) / 90) % 2 === 1) {
-            var oldHeight = self._originalImageHeight;
-            var oldWidth = self._originalImageWidth;
-            self._originalImageWidth = oldHeight;
-            self._originalImageHeight = oldWidth;
-        }
-    }
-
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
@@ -1338,11 +1213,6 @@
             type: 'square'
         },
         boundary: { },
-        orientationControls: {
-            enabled: true,
-            leftClass: '',
-            rightClass: ''
-        },
         resizeControls: {
             width: true,
             height: true
@@ -1352,7 +1222,6 @@
         enableZoom: true,
         enableResize: false,
         mouseWheelZoom: true,
-        enableOrientation: false,
         enableKeyMovement: true,
         update: function () { }
     };
@@ -1381,9 +1250,6 @@
         setZoom: function (v) {
             _setZoomerVal.call(this, v);
             dispatchChange(this.elements.zoomer);
-        },
-        rotate: function (deg) {
-            _rotate.call(this, deg);
         },
         destroy: function () {
             return _destroy.call(this);

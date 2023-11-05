@@ -83,48 +83,13 @@ var Demo = (function() {
 		});
 	}
 
-	function demoVanilla() {
-		var vEl = document.getElementById('vanilla-demo');
-		var vanilla = new Croppie(vEl, {
-			viewport: { width: 200, height: 100 },
-			boundary: { width: 300, height: 300 },
-			showZoomer: false,
-            enableOrientation: true
-		});
-		vanilla.bind({
-            url: 'demo/demo-2.jpg',
-            orientation: 4,
-            zoom: 0
-        });
-        vEl.addEventListener('update', function (ev) {
-        	console.log('vanilla update', ev);
-        });
-		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
-			vanilla.result({
-				type: 'blob'
-			}).then(function (blob) {
-				popupResult({
-					src: window.URL.createObjectURL(blob)
-				});
-			});
-		});
-
-		var vRotate = document.querySelectorAll('.vanilla-rotate');
-		vRotate.forEach(function (el) {
-			el.addEventListener('click', function (ev) {
-				vanilla.rotate(parseInt(el.dataset.deg));
-			});
-		});
-	}
-
     function demoResizer() {
 		var vEl = document.getElementById('resizer-demo'),
 			resize = new Croppie(vEl, {
-			viewport: { width: 100, height: 100 },
+			viewport: { width: 150, height: 150 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableResize: true,
-            enableOrientation: true,
             mouseWheelZoom: 'ctrl'
 		});
 		resize.bind({
@@ -227,8 +192,7 @@ var Demo = (function() {
 
 	function init() {
 		demoMain();
-		demoBasic();	
-		demoVanilla();	
+		demoBasic();
 		demoResizer();
 		demoUpload();
 		demoHidden();

@@ -122,29 +122,3 @@
 .cr-slider {
     width: 85%;
 }
-
-/***********************************/
-/* Rotation Tools */
-/***********************************/
-.cr-rotate-controls {
-	position: absolute;
-	bottom: 5px;
-	left: 5px;
-	z-index: 1;
-}
-.cr-rotate-controls button {
-	border: 0;
-	background: none;
-}
-.cr-rotate-controls i:before {
-	display: inline-block;
-	font-style: normal;
-	font-weight: 900;
-	font-size: 22px;
-}
-.cr-rotate-l i:before {
-	content: '↺';
-}
-.cr-rotate-r i:before {
-	content: '↻';
-}
