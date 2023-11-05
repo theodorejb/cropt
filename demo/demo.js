@@ -1,15 +1,4 @@
 var Demo = (function() {
-
-	function output(node) {
-		var existing = $('#result .croppie-result');
-		if (existing.length > 0) {
-			existing[0].parentNode.replaceChild(node, existing[0]);
-		}
-		else {
-			$('#result')[0].appendChild(node);
-		}
-	}
-
 	function popupResult(result) {
 		var html;
 		if (result.html) {
@@ -18,25 +7,17 @@ var Demo = (function() {
 		if (result.src) {
 			html = '<img src="' + result.src + '" />';
 		}
-		swal({
+		Swal.fire({
 			title: '',
-			html: true,
-			text: html,
+			html: html,
 			allowOutsideClick: true
 		});
-		setTimeout(function(){
-			$('.sweet-alert').css('margin', function() {
-				var top = -1 * ($(this).height() / 2),
-					left = -1 * ($(this).width() / 2);
-
-				return top + 'px 0 0 ' + left + 'px';
-			});
-		}, 1);
 	}
 
 	function demoMain () {
-		var mc = $('#cropper-1');
-		mc.croppie({
+		var mc = document.getElementById('cropper-1');
+
+		var cropper1 = new Croppie(mc, {
 			viewport: {
 				width: 150,
 				height: 150,
@@ -46,18 +27,17 @@ var Demo = (function() {
 				width: 300,
 				height: 300
 			},
-			// url: 'demo/demo-1.jpg',
-			// enforceBoundary: false
-			// mouseWheelZoom: false
 		});
-		mc.on('update.croppie', function (ev, data) {
-			// console.log('jquery update', ev, data);
+
+		mc.addEventListener('update', function (ev) {
+			console.log('update', ev);
 		});
-		$('.js-main-image').on('click', function (ev) {
-            mc.croppie('result', {
+
+		var mi = document.querySelector('.js-main-image');
+		mi.addEventListener('click', function (ev) {
+			cropper1.result({
 				type: 'rawcanvas',
 				circle: true,
-				// size: { width: 300, height: 300 },
             	format: 'png'
             }).then(function (canvas) {
 				popupResult({
@@ -68,9 +48,8 @@ var Demo = (function() {
 	}
 
 	function demoBasic() {
-		var $w = $('.basic-width'),
-			$h = $('.basic-height'),
-			basic = $('#demo-basic').croppie({
+		var basicEl = document.getElementById('demo-basic');
+		var basic = new Croppie(basicEl, {
 			viewport: {
 				width: 150,
 				height: 200
@@ -78,21 +57,24 @@ var Demo = (function() {
 			boundary: {
 				width: 300,
 				height: 300
-			}
+			},
 		});
-		basic.croppie('bind', {
+
+		basic.bind({
 			url: 'demo/cat.jpg',
 			points: [77,469,280,739]
 		});
 
-		$('.basic-result').on('click', function() {
-			var w = parseInt($w.val(), 10),
-				h = parseInt($h.val(), 10),s
+		var basicResult = document.querySelector('.basic-result');
+		basicResult.addEventListener('click', function () {
+			var w = parseInt(document.querySelector('.basic-width').value, 10),
+				h = parseInt(document.querySelector('.basic-height').value, 10),
 				size = 'viewport';
 			if (w || h) {
 				size = { width: w, height: h };
 			}
-			basic.croppie('result', {
+
+			basic.result({
 				type: 'canvas',
 				size: size,
 				resultSize: {
@@ -108,8 +90,8 @@ var Demo = (function() {
 	}
 
 	function demoVanilla() {
-		var vEl = document.getElementById('vanilla-demo'),
-			vanilla = new Croppie(vEl, {
+		var vEl = document.getElementById('vanilla-demo');
+		var vanilla = new Croppie(vEl, {
 			viewport: { width: 200, height: 100 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
@@ -121,7 +103,7 @@ var Demo = (function() {
             zoom: 0
         });
         vEl.addEventListener('update', function (ev) {
-        	// console.log('vanilla update', ev);
+        	console.log('vanilla update', ev);
         });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
@@ -133,8 +115,11 @@ var Demo = (function() {
 			});
 		});
 
-		$('.vanilla-rotate').on('click', function(ev) {
-			vanilla.rotate(parseInt($(this).data('deg')));
+		var vRotate = document.querySelectorAll('.vanilla-rotate');
+		vRotate.forEach(function (el) {
+			el.addEventListener('click', function (ev) {
+				vanilla.rotate(parseInt(el.dataset.deg));
+			});
 		});
 	}
 
@@ -167,41 +152,45 @@ var Demo = (function() {
 	}
 
 	function demoUpload() {
-		var $uploadCrop;
+		var uploadEl = document.getElementById('upload-demo');
+		var uploadCrop = new Croppie(uploadEl, {
+			enableExif: true,
+			viewport: {
+				width: 200,
+				height: 200,
+				type: 'circle'
+			},
+			boundary: {
+				width: 300,
+				height: 300
+			}
+		});
 
 		function readFile(input) {
  			if (input.files && input.files[0]) {
 	            var reader = new FileReader();
-	            
+
 	            reader.onload = function (e) {
-					$('.upload-demo').addClass('ready');
-	            	$uploadCrop.croppie('bind', {
+					document.querySelector('.upload-demo').classList.add('ready');
+
+					uploadCrop.bind({
 	            		url: e.target.result
-	            	}).then(function(){
-	            		console.log('jQuery bind complete');
+	            	}).then(function () {
+	            		console.log('uploadCrop bind complete');
 	            	});
-	            	
 	            }
-	            
+
 	            reader.readAsDataURL(input.files[0]);
 	        }
-	        else {
-		        swal("Sorry - you're browser doesn't support the FileReader API");
-		    }
 		}
 
-		$uploadCrop = $('#upload-demo').croppie({
-			viewport: {
-				width: 100,
-				height: 100,
-				type: 'circle'
-			},
-			enableExif: true
+		var uploadEl = document.getElementById('upload');
+		uploadEl.addEventListener('change', function () {
+			readFile(uploadEl);
 		});
 
-		$('#upload').on('change', function () { readFile(this); });
-		$('.upload-result').on('click', function (ev) {
-			$uploadCrop.croppie('result', {
+		document.querySelector('.upload-result').addEventListener('click', function (ev) {
+			uploadCrop.result({
 				type: 'canvas',
 				size: 'viewport'
 			}).then(function (resp) {
@@ -213,9 +202,8 @@ var Demo = (function() {
 	}
 
 	function demoHidden() {
-		var $hid = $('#hidden-demo');
-
-		$hid.croppie({
+		var hidEl = document.getElementById('hidden-demo');
+		var hiddenCrop = new Croppie(hidEl, {
 			viewport: {
 				width: 175,
 				height: 175,
@@ -226,27 +214,25 @@ var Demo = (function() {
 				height: 200
 			}
 		});
-		$hid.croppie('bind', 'demo/demo-3.jpg');
-		$('.show-hidden').on('click', function () {
-			$hid.toggle();
-			$hid.croppie('bind');
+		hiddenCrop.bind({
+			url: 'demo/demo-3.jpg'
+		});
+
+		document.querySelector('.toggle-hidden').addEventListener('click', function () {
+			toggle(hidEl);
+			hiddenCrop.bind(); // refresh
 		});
 	}
 
-	function bindNavigation () {
-		var $html = $('html');
-		$('nav a').on('click', function (ev) {
-			var lnk = $(ev.currentTarget),
-				href = lnk.attr('href'),
-				targetTop = $('a[name=' + href.substring(1) + ']').offset().top;
-
-			$html.animate({ scrollTop: targetTop });
-			ev.preventDefault();
-		});
+	function toggle(el) {
+		if (el.style.display == 'none') {
+			el.style.display = '';
+		} else {
+			el.style.display = 'none';
+		}
 	}
 
 	function init() {
-		bindNavigation();
 		demoMain();
 		demoBasic();	
 		demoVanilla();	
@@ -258,40 +244,4 @@ var Demo = (function() {
 	return {
 		init: init
 	};
-})();
-
-
-// Full version of `log` that:
-//  * Prevents errors on console methods when no console present.
-//  * Exposes a global 'log' function that preserves line numbering and formatting.
-(function () {
-  var method;
-  var noop = function () { };
-  var methods = [
-      'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-      'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-      'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
-      'timeStamp', 'trace', 'warn'
-  ];
-  var length = methods.length;
-  var console = (window.console = window.console || {});
- 
-  while (length--) {
-    method = methods[length];
- 
-    // Only stub undefined methods.
-    if (!console[method]) {
-        console[method] = noop;
-    }
-  }
- 
- 
-  if (Function.prototype.bind) {
-    window.log = Function.prototype.bind.call(console.log, console);
-  }
-  else {
-    window.log = function() { 
-      Function.prototype.apply.call(console.log, console, arguments);
-    };
-  }
 })();

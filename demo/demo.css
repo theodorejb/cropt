@@ -6,6 +6,11 @@ Colors
 #61CED2
 #0C4648
 */
+
+html {
+    scroll-behavior: smooth;
+}
+
 html,
 body {
     height: 100%;

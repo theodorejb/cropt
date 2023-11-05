@@ -1,9 +1,3 @@
-/*************************
- * Croppie
- * Copyright 2019
- * Foliotek
- * Version: 2.6.5
- *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -16,75 +10,13 @@
         root.Croppie = factory();
     }
 }(typeof self !== 'undefined' ? self : this, function () {
-
-    /* Polyfills */
-    if (typeof Promise !== 'function') {
-        /*! promise-polyfill 3.1.0 */
-        !function(a){function b(a,b){return function(){a.apply(b,arguments)}}function c(a){if("object"!==typeof this)throw new TypeError("Promises must be constructed via new");if("function"!==typeof a)throw new TypeError("not a function");this._state=null,this._value=null,this._deferreds=[],i(a,b(e,this),b(f,this))}function d(a){var b=this;return null===this._state?void this._deferreds.push(a):void k(function(){var c=b._state?a.onFulfilled:a.onRejected;if(null===c)return void(b._state?a.resolve:a.reject)(b._value);var d;try{d=c(b._value)}catch(e){return void a.reject(e)}a.resolve(d)})}function e(a){try{if(a===this)throw new TypeError("A promise cannot be resolved with itself.");if(a&&("object"===typeof a||"function"===typeof a)){var c=a.then;if("function"===typeof c)return void i(b(c,a),b(e,this),b(f,this))}this._state=!0,this._value=a,g.call(this)}catch(d){f.call(this,d)}}function f(a){this._state=!1,this._value=a,g.call(this)}function g(){for(var a=0,b=this._deferreds.length;b>a;a++)d.call(this,this._deferreds[a]);this._deferreds=null}function h(a,b,c,d){this.onFulfilled="function"===typeof a?a:null,this.onRejected="function"===typeof b?b:null,this.resolve=c,this.reject=d}function i(a,b,c){var d=!1;try{a(function(a){d||(d=!0,b(a))},function(a){d||(d=!0,c(a))})}catch(e){if(d)return;d=!0,c(e)}}var j=setTimeout,k="function"===typeof setImmediate&&setImmediate||function(a){j(a,1)},l=Array.isArray||function(a){return"[object Array]"===Object.prototype.toString.call(a)};c.prototype["catch"]=function(a){return this.then(null,a)},c.prototype.then=function(a,b){var e=this;return new c(function(c,f){d.call(e,new h(a,b,c,f))})},c.all=function(){var a=Array.prototype.slice.call(1===arguments.length&&l(arguments[0])?arguments[0]:arguments);return new c(function(b,c){function d(f,g){try{if(g&&("object"===typeof g||"function"===typeof g)){var h=g.then;if("function"===typeof h)return void h.call(g,function(a){d(f,a)},c)}a[f]=g,0===--e&&b(a)}catch(i){c(i)}}if(0===a.length)return b([]);for(var e=a.length,f=0;f<a.length;f++)d(f,a[f])})},c.resolve=function(a){return a&&"object"===typeof a&&a.constructor===c?a:new c(function(b){b(a)})},c.reject=function(a){return new c(function(b,c){c(a)})},c.race=function(a){return new c(function(b,c){for(var d=0,e=a.length;e>d;d++)a[d].then(b,c)})},c._setImmediateFn=function(a){k=a},"undefined"!==typeof module&&module.exports?module.exports=c:a.Promise||(a.Promise=c)}(this);
-    }
-
-    if (typeof window !== 'undefined' && typeof window.CustomEvent !== "function") {
-        (function(){
-            function CustomEvent ( event, params ) {
-                params = params || { bubbles: false, cancelable: false, detail: undefined };
-                var evt = document.createEvent( 'CustomEvent' );
-                evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
-                return evt;
-            }
-            CustomEvent.prototype = window.Event.prototype;
-            window.CustomEvent = CustomEvent;
-        }());
-    }
-
-    if (typeof HTMLCanvasElement !== 'undefined' && !HTMLCanvasElement.prototype.toBlob) {
-        Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
-            value: function (callback, type, quality) {
-                var binStr = atob( this.toDataURL(type, quality).split(',')[1] ),
-                len = binStr.length,
-                arr = new Uint8Array(len);
-
-                for (var i=0; i<len; i++ ) {
-                    arr[i] = binStr.charCodeAt(i);
-                }
-
-                callback( new Blob( [arr], {type: type || 'image/png'} ) );
-            }
-        });
-    }
-    /* End Polyfills */
-
-    var cssPrefixes = ['Webkit', 'Moz', 'ms'],
-        emptyStyles = typeof document !== 'undefined' ? document.createElement('div').style : {},
-        EXIF_NORM = [1,8,3,6],
-        EXIF_FLIP = [2,7,4,5],
-        CSS_TRANS_ORG,
-        CSS_TRANSFORM,
-        CSS_USERSELECT;
-
-    function vendorPrefix(prop) {
-        if (prop in emptyStyles) {
-            return prop;
-        }
-
-        var capProp = prop[0].toUpperCase() + prop.slice(1),
-            i = cssPrefixes.length;
-
-        while (i--) {
-            prop = cssPrefixes[i] + capProp;
-            if (prop in emptyStyles) {
-                return prop;
-            }
-        }
-    }
-
-    CSS_TRANSFORM = vendorPrefix('transform');
-    CSS_TRANS_ORG = vendorPrefix('transformOrigin');
-    CSS_USERSELECT = vendorPrefix('userSelect');
-
     function getExifOffset(ornt, rotate) {
+        var EXIF_NORM = [1,8,3,6];
+        var EXIF_FLIP = [2,7,4,5];
+
         var arr = EXIF_NORM.indexOf(ornt) > -1 ? EXIF_NORM : EXIF_FLIP,
             index = arr.indexOf(ornt),
-            offset = (rotate / 90) % arr.length;// 180 = 2%4 = 2 shift exif by 2 indexes
+            offset = (rotate / 90) % arr.length; // 180 = 2%4 = 2 shift exif by 2 indexes
 
         return arr[(arr.length + index + (offset % arr.length)) % arr.length];
     }
@@ -123,17 +55,10 @@
     }
 
     function dispatchChange(element) {
-        if ("createEvent" in document) {
-            var evt = document.createEvent("HTMLEvents");
-            evt.initEvent("change", false, true);
-            element.dispatchEvent(evt);
-        }
-        else {
-            element.fireEvent("onchange");
-        }
+        var event = new Event('change');
+        element.dispatchEvent(event);
     }
 
-    //http://jsperf.com/vanilla-css
     function css(el, styles, val) {
         if (typeof (styles) === 'string') {
             var tmp = styles;
@@ -143,30 +68,6 @@
 
         for (var prop in styles) {
             el.style[prop] = styles[prop];
-        }
-    }
-
-    function addClass(el, c) {
-        if (el.classList) {
-            el.classList.add(c);
-        }
-        else {
-            el.className += ' ' + c;
-        }
-    }
-
-    function removeClass(el, c) {
-        if (el.classList) {
-            el.classList.remove(c);
-        }
-        else {
-            el.className = el.className.replace(c, '');
-        }
-    }
-
-    function setAttributes(el, attrs) {
-        for (var key in attrs) {
-            el.setAttribute(key, attrs[key]);
         }
     }
 
@@ -226,14 +127,6 @@
     }
 
     /* CSS Transform Prototype */
-    var TRANSLATE_OPTS = {
-        'translate3d': {
-            suffix: ', 0px'
-        },
-        'translate': {
-            suffix: ''
-        }
-    };
     var Transform = function (x, y, scale) {
         this.x = parseFloat(x);
         this.y = parseFloat(y);
@@ -242,7 +135,7 @@
 
     Transform.parse = function (v) {
         if (v.style) {
-            return Transform.parse(v.style[CSS_TRANSFORM]);
+            return Transform.parse(v.style.transform);
         }
         else if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
             return Transform.fromMatrix(v);
@@ -263,7 +156,7 @@
 
     Transform.fromString = function (v) {
         var values = v.split(') '),
-            translate = values[0].substring(Croppie.globals.translate.length + 1).split(','),
+            translate = values[0].substring("translate".length + 1).split(','),
             scale = values.length > 1 ? values[1].substring(6) : 1,
             x = translate.length > 1 ? translate[0] : 0,
             y = translate.length > 1 ? translate[1] : 0;
@@ -272,17 +165,16 @@
     };
 
     Transform.prototype.toString = function () {
-        var suffix = TRANSLATE_OPTS[Croppie.globals.translate].suffix || '';
-        return Croppie.globals.translate + '(' + this.x + 'px, ' + this.y + 'px' + suffix + ') scale(' + this.scale + ')';
+        return 'translate(' + this.x + 'px, ' + this.y + 'px' + ') scale(' + this.scale + ')';
     };
 
     var TransformOrigin = function (el) {
-        if (!el || !el.style[CSS_TRANS_ORG]) {
+        if (!el || !el.style.transformOrigin) {
             this.x = 0;
             this.y = 0;
             return;
         }
-        var css = el.style[CSS_TRANS_ORG].split(' ');
+        var css = el.style.transformOrigin.split(' ');
         this.x = parseFloat(css[0]);
         this.y = parseFloat(css[1]);
     };
@@ -291,7 +183,7 @@
         return this.x + 'px ' + this.y + 'px';
     };
 
-    function getExifOrientation (img) {
+    function getExifOrientation(img) {
         return img.exifdata && img.exifdata.Orientation ? num(img.exifdata.Orientation) : 1;
     }
 
@@ -378,7 +270,7 @@
             self.elements.preview = img;
         }
 
-        addClass(boundary, 'cr-boundary');
+        boundary.classList.add('cr-boundary');
         boundary.setAttribute('aria-dropeffect', 'none');
         bw = self.options.boundary.width;
         bh = self.options.boundary.height;
@@ -387,9 +279,9 @@
             height: (bh + (isNaN(bh) ? '' : 'px'))
         });
 
-        addClass(viewport, 'cr-viewport');
+        viewport.classList.add('cr-viewport');
         if (customViewportClass) {
-            addClass(viewport, customViewportClass);
+            viewport.classList.add(customViewportClass);
         }
         css(viewport, {
             width: self.options.viewport.width + 'px',
@@ -397,18 +289,19 @@
         });
         viewport.setAttribute('tabindex', 0);
 
-        addClass(self.elements.preview, 'cr-image');
-        setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false' });
-        addClass(overlay, 'cr-overlay');
+        self.elements.preview.classList.add('cr-image');
+        self.elements.preview.setAttribute('alt', 'preview');
+        self.elements.preview.setAttribute('aria-grabbed', 'false');
+        overlay.classList.add('cr-overlay');
 
         self.element.appendChild(boundary);
         boundary.appendChild(self.elements.preview);
         boundary.appendChild(viewport);
         boundary.appendChild(overlay);
 
-        addClass(self.element, contClass);
+        self.element.classList.add(contClass);
         if (self.options.customClass) {
-            addClass(self.element, self.options.customClass);
+            self.element.classList.add(self.options.customClass);
         }
 
         _initDraggable.call(this);
@@ -417,44 +310,10 @@
             _initializeZoom.call(self);
         }
 
-        // if (self.options.enableOrientation) {
-        //     _initRotationControls.call(self);
-        // }
-
         if (self.options.enableResize) {
             _initializeResize.call(self);
         }
     }
-
-    // function _initRotationControls () {
-    //     var self = this,
-    //         wrap, btnLeft, btnRight, iLeft, iRight;
-
-    //     wrap = document.createElement('div');
-    //     self.elements.orientationBtnLeft = btnLeft = document.createElement('button');
-    //     self.elements.orientationBtnRight = btnRight = document.createElement('button');
-
-    //     wrap.appendChild(btnLeft);
-    //     wrap.appendChild(btnRight);
-
-    //     iLeft = document.createElement('i');
-    //     iRight = document.createElement('i');
-    //     btnLeft.appendChild(iLeft);
-    //     btnRight.appendChild(iRight);
-
-    //     addClass(wrap, 'cr-rotate-controls');
-    //     addClass(btnLeft, 'cr-rotate-l');
-    //     addClass(btnRight, 'cr-rotate-r');
-
-    //     self.elements.boundary.appendChild(wrap);
-
-    //     btnLeft.addEventListener('click', function () {
-    //         self.rotate(-90);
-    //     });
-    //     btnRight.addEventListener('click', function () {
-    //         self.rotate(90);
-    //     });
-    // }
 
     function _hasExif() {
         return this.options.enableExif && window.EXIF;
@@ -473,7 +332,7 @@
         var vr;
         var hr;
 
-        addClass(wrap, 'cr-resizer');
+        wrap.classList.add('cr-resizer');
         css(wrap, {
             width: this.options.viewport.width + 'px',
             height: this.options.viewport.height + 'px'
@@ -481,13 +340,13 @@
 
         if (this.options.resizeControls.height) {
             vr = document.createElement('div');
-            addClass(vr, 'cr-resizer-vertical');
+            vr.classList.add('cr-resizer-vertical');
             wrap.appendChild(vr);
         }
 
         if (this.options.resizeControls.width) {
             hr = document.createElement('div');
-            addClass(hr, 'cr-resizer-horisontal');
+            hr.classList.add('cr-resizer-horisontal');
             wrap.appendChild(hr);
         }
 
@@ -518,7 +377,7 @@
             window.addEventListener('touchmove', mouseMove);
             window.addEventListener('mouseup', mouseUp);
             window.addEventListener('touchend', mouseUp);
-            document.body.style[CSS_USERSELECT] = 'none';
+            document.body.style.userSelect = 'none';
         }
 
         function mouseMove(ev) {
@@ -583,7 +442,7 @@
             window.removeEventListener('touchmove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
             window.removeEventListener('touchend', mouseUp);
-            document.body.style[CSS_USERSELECT] = '';
+            document.body.style.userSelect = '';
         }
 
         if (vr) {
@@ -613,8 +472,8 @@
             wrap = self.elements.zoomerWrap = document.createElement('div'),
             zoomer = self.elements.zoomer = document.createElement('input');
 
-        addClass(wrap, 'cr-slider-wrap');
-        addClass(zoomer, 'cr-slider');
+        wrap.classList.add('cr-slider-wrap');
+        zoomer.classList.add('cr-slider');
         zoomer.type = 'range';
         zoomer.step = '0.0001';
         zoomer.value = '1';
@@ -674,8 +533,8 @@
 
         function applyCss() {
             var transCss = {};
-            transCss[CSS_TRANSFORM] = transform.toString();
-            transCss[CSS_TRANS_ORG] = origin.toString();
+            transCss.transform = transform.toString();
+            transCss.transformOrigin = origin.toString();
             css(self.elements.preview, transCss);
         }
 
@@ -760,7 +619,7 @@
             scale = self._currentZoom,
             data = self.elements.preview.getBoundingClientRect(),
             vpData = self.elements.viewport.getBoundingClientRect(),
-            transform = Transform.parse(self.elements.preview.style[CSS_TRANSFORM]),
+            transform = Transform.parse(self.elements.preview.style.transform),
             pc = new TransformOrigin(self.elements.preview),
             top = (vpData.top - data.top) + (vpData.height / 2),
             left = (vpData.left - data.left) + (vpData.width / 2),
@@ -790,8 +649,8 @@
         }
 
         var newCss = {};
-        newCss[CSS_TRANS_ORG] = center.x + 'px ' + center.y + 'px';
-        newCss[CSS_TRANSFORM] = transform.toString();
+        newCss.transformOrigin = center.x + 'px ' + center.y + 'px';
+        newCss.transform = transform.toString();
         css(self.elements.preview, newCss);
     }
 
@@ -850,7 +709,7 @@
                 var movement = parseKeyDown(ev.keyCode);
 
                 transform = Transform.parse(self.elements.preview);
-                document.body.style[CSS_USERSELECT] = 'none';
+                document.body.style.userSelect = 'none';
                 vpRect = self.elements.viewport.getBoundingClientRect();
                 keyMove(movement);
             }
@@ -876,10 +735,10 @@
 
             assignTransformCoordinates(deltaX, deltaY);
 
-            newCss[CSS_TRANSFORM] = transform.toString();
+            newCss.transform = transform.toString();
             css(self.elements.preview, newCss);
             _updateOverlay.call(self);
-            document.body.style[CSS_USERSELECT] = '';
+            document.body.style.userSelect = '';
             _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             originalDistance = 0;
@@ -905,7 +764,7 @@
             window.addEventListener('touchmove', mouseMove);
             window.addEventListener('mouseup', mouseUp);
             window.addEventListener('touchend', mouseUp);
-            document.body.style[CSS_USERSELECT] = 'none';
+            document.body.style.userSelect = 'none';
             vpRect = self.elements.viewport.getBoundingClientRect();
         }
 
@@ -944,7 +803,7 @@
 
             assignTransformCoordinates(deltaX, deltaY);
 
-            newCss[CSS_TRANSFORM] = transform.toString();
+            newCss.transform = transform.toString();
             css(self.elements.preview, newCss);
             _updateOverlay.call(self);
             originalY = pageY;
@@ -958,7 +817,7 @@
             window.removeEventListener('touchmove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
             window.removeEventListener('touchend', mouseUp);
-            document.body.style[CSS_USERSELECT] = '';
+            document.body.style.userSelect = '';
             _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             originalDistance = 0;
@@ -982,6 +841,7 @@
             left: (imgData.left - boundRect.left) + 'px'
         });
     }
+
     var _debouncedOverlay = debounce(_updateOverlay, 500);
 
     function _triggerUpdate() {
@@ -993,20 +853,8 @@
         }
 
         self.options.update.call(self, data);
-        if (self.$ && typeof Prototype === 'undefined') {
-            self.$(self.element).trigger('update.croppie', data);
-        }
-        else {
-            var ev;
-            if (window.CustomEvent) {
-                ev = new CustomEvent('update', { detail: data });
-            } else {
-                ev = document.createEvent('CustomEvent');
-                ev.initCustomEvent('update', true, true, data);
-            }
-
-            self.element.dispatchEvent(ev);
-        }
+        var ev = new CustomEvent('update', { detail: data });
+        self.element.dispatchEvent(ev);
     }
 
     function _isVisible() {
@@ -1028,8 +876,8 @@
         }
 
         self.data.bound = true;
-        cssReset[CSS_TRANSFORM] = transformReset.toString();
-        cssReset[CSS_TRANS_ORG] = originReset.toString();
+        cssReset.transform = transformReset.toString();
+        cssReset.transformOrigin = originReset.toString();
         cssReset['opacity'] = 1;
         css(img, cssReset);
 
@@ -1047,7 +895,7 @@
         }
 
         transformReset.scale = self._currentZoom;
-        cssReset[CSS_TRANSFORM] = transformReset.toString();
+        cssReset.transform = transformReset.toString();
         css(img, cssReset);
 
         if (self.data.points.length) {
@@ -1105,7 +953,6 @@
         }
         var self = this,
             pointsWidth = points[2] - points[0],
-            // pointsHeight = points[3] - points[1],
             vpData = self.elements.viewport.getBoundingClientRect(),
             boundRect = self.elements.boundary.getBoundingClientRect(),
             vpOffset = {
@@ -1119,8 +966,8 @@
             transformLeft = (-1 * points[0]) + vpOffset.left,
             newCss = {};
 
-        newCss[CSS_TRANS_ORG] = originLeft + 'px ' + originTop + 'px';
-        newCss[CSS_TRANSFORM] = new Transform(transformLeft, transformTop, scale).toString();
+        newCss.transformOrigin = originLeft + 'px ' + originTop + 'px';
+        newCss.transform = new Transform(transformLeft, transformTop, scale).toString();
         css(self.elements.preview, newCss);
 
         _setZoomerVal.call(self, scale);
@@ -1138,7 +985,7 @@
             h = vpTop - ((imgDim.height - vpDim.height) / 2),
             transform = new Transform(w, h, self._currentZoom);
 
-        css(self.elements.preview, CSS_TRANSFORM, transform.toString());
+        css(self.elements.preview, 'transform', transform.toString());
     }
 
     function _transferImageToCanvas(customOrientation) {
@@ -1191,10 +1038,8 @@
             dWidth = canvasWidth,
             dHeight = canvasHeight;
 
-        //
         // Do not go outside of the original image's bounds along the x-axis.
         // Handle translations when projecting onto the destination canvas.
-        //
 
         // The smallest possible source x-position is 0.
         if (left < 0) {
@@ -1208,9 +1053,7 @@
             dWidth =  (sWidth / width) * canvasWidth;
         }
 
-        //
         // Do not go outside of the original image's bounds along the y-axis.
-        //
 
         // The smallest possible source y-position is 0.
         if (top < 0) {
@@ -1245,7 +1088,7 @@
             width = points[2] - points[0],
             height = points[3] - points[1];
 
-        addClass(div, 'croppie-result');
+        div.classList.add('croppie-result');
         div.appendChild(img);
         css(img, {
             left: (-1 * points[0]) + 'px',
@@ -1390,14 +1233,14 @@
         };
     }
 
-    var RESULT_DEFAULTS = {
+    function _result(options) {
+        var RESULT_DEFAULTS = {
             type: 'canvas',
             format: 'png',
             quality: 1
-        },
-        RESULT_FORMATS = ['jpeg', 'webp', 'png'];
+        };
+        var RESULT_FORMATS = ['jpeg', 'webp', 'png'];
 
-    function _result(options) {
         var self = this,
             data = _get.call(self),
             opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
@@ -1466,8 +1309,8 @@
             throw 'Croppie: Cannot rotate without enableOrientation && EXIF.js included';
         }
 
-        var self = this,
-            canvas = self.elements.canvas;
+        var self = this;
+        var canvas = self.elements.canvas;
 
         self.data.orientation = getExifOffset(self.data.orientation, deg);
         drawCanvas(canvas, self.elements.img, self.data.orientation);
@@ -1486,56 +1329,11 @@
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        removeClass(self.element, 'croppie-container');
+        self.element.classList.remove('croppie-container');
         if (self.options.enableZoom) {
             self.element.removeChild(self.elements.zoomerWrap);
         }
         delete self.elements;
-    }
-
-    if (typeof window !== 'undefined' && window.jQuery) {
-        var $ = window.jQuery;
-        $.fn.croppie = function (opts) {
-            var ot = typeof opts;
-
-            if (ot === 'string') {
-                var args = Array.prototype.slice.call(arguments, 1);
-                var singleInst = $(this).data('croppie');
-
-                if (opts === 'get') {
-                    return singleInst.get();
-                }
-                else if (opts === 'result') {
-                    return singleInst.result.apply(singleInst, args);
-                }
-                else if (opts === 'bind') {
-                    return singleInst.bind.apply(singleInst, args);
-                }
-
-                return this.each(function () {
-                    var i = $(this).data('croppie');
-                    if (!i) return;
-
-                    var method = i[opts];
-                    if ($.isFunction(method)) {
-                        method.apply(i, args);
-                        if (opts === 'destroy') {
-                            $(this).removeData('croppie');
-                        }
-                    }
-                    else {
-                        throw 'Croppie ' + opts + ' method not found';
-                    }
-                });
-            }
-            else {
-                return this.each(function () {
-                    var i = new Croppie(this, opts);
-                    i.$ = $;
-                    $(this).data('croppie', i);
-                });
-            }
-        };
     }
 
     function Croppie(element, opts) {
@@ -1547,8 +1345,9 @@
 
         if (this.element.tagName.toLowerCase() === 'img') {
             var origImage = this.element;
-            addClass(origImage, 'cr-original-image');
-            setAttributes(origImage, {'aria-hidden' : 'true', 'alt' : '' });
+            origImage.classList.add('cr-original-image');
+            origImage.setAttribute('aria-hidden', 'true');
+            origImage.setAttribute('alt', '');
             var replacementDiv = document.createElement('div');
             this.element.parentNode.appendChild(replacementDiv);
             replacementDiv.appendChild(origImage);
@@ -1594,10 +1393,6 @@
         enableOrientation: false,
         enableKeyMovement: true,
         update: function () { }
-    };
-
-    Croppie.globals = {
-        translate: 'translate3d'
     };
 
     deepExtend(Croppie.prototype, {
