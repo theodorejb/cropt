@@ -165,7 +165,7 @@ var Demo = (function() {
 
 		document.querySelector('.toggle-hidden').addEventListener('click', function () {
 			toggle(hidEl);
-			hiddenCrop.bind(); // refresh
+			hiddenCrop.refresh();
 		});
 	}
 

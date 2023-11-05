@@ -158,6 +158,10 @@ c.method(args);</code></pre>
                             <strong class="focus">destroy()</strong><em></em>
                             <p>Destroy a croppie instance and remove it from the DOM</p>
                         </li>
+                        <li id="refresh">
+                            <strong class="focus">refresh()</strong><em></em>
+                            <p>Recalculate points for the croppie image. Necessary if croppie instance was bound to a hidden element.</p>
+                        </li>
                         <li id="result">
                             <strong class="focus">result({ type, size, format, quality })</strong><em>Promise</em>
                             <p>Get the resulting crop of the image.</p>
@@ -342,9 +346,9 @@ var uploadCrop = new Croppie(uploadEl, {
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Hidden Example</strong>
-                            <p>When binding a croppie element that isn't visible, i.e., in a modal - you'll need to call bind again on your croppie instance, to indicate to croppie that the position has changed and it needs to recalculate its points.</p>
+                            <p>When binding a croppie element that isn't visible, i.e., in a modal - you'll need to call refresh on your croppie instance, to indicate to croppie that the position has changed and it needs to recalculate its points.</p>
 
-                            <pre class="language-javascript"><code class="language-javascript">hiddenCrop.bind();</code></pre>
+                            <pre class="language-javascript"><code class="language-javascript">hiddenCrop.refresh();</code></pre>
                             <div class="actions">
                                 <button class="toggle-hidden">Toggle Croppie</button>
                             </div>

@@ -958,32 +958,13 @@
     }
 
     function _bind(options) {
-        var self = this,
-            url,
-            points = [],
-            zoom = null;
-
-        if (typeof (options) === 'string') {
-            url = options;
-            options = {};
-        }
-        else if (Array.isArray(options)) {
-            points = options.slice();
-        }
-        else if (typeof (options) === 'undefined' && self.data.url) { //refreshing
-            _updatePropertiesFromImage.call(self);
-            _triggerUpdate.call(self);
-            return null;
-        }
-        else {
-            url = options.url;
-            points = options.points || [];
-            zoom = typeof(options.zoom) === 'undefined' ? null : options.zoom;
-        }
+        var self = this;
+        var url = options.url;
+        var points = options.points || [];
 
         self.data.bound = false;
         self.data.url = url || self.data.url;
-        self.data.boundZoom = zoom;
+        self.data.boundZoom = typeof(options.zoom) === 'undefined' ? null : options.zoom;
 
         return loadImage(url).then(function (img) {
             _replaceImage.call(self, img);
@@ -1109,6 +1090,7 @@
 
     function _refresh() {
         _updatePropertiesFromImage.call(this);
+        _triggerUpdate.call(this);
     }
 
     function _destroy() {
