@@ -23,8 +23,10 @@ var Demo = (function() {
 			},
 		});
 
+		cropper1.bind({ url: "demo/demo-1.jpg" });
+
 		mc.addEventListener('update', function (ev) {
-			console.log('update', ev);
+			console.log('main update', ev);
 		});
 
 		var mi = document.querySelector('.js-main-image');

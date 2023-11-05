@@ -41,7 +41,7 @@
                         </div>
                     </div>
                     <div class="col-1-2">
-                        <img class="demo-cropper" id="cropper-1" src="demo/demo-1.jpg" style="display: none;" />
+                        <div id="cropper-1"></div>
                     </div>
                 </div>
             </div>
@@ -51,14 +51,8 @@
             <div class="container">
                 <pre class="language-html"><code class="language-html">&lt;div class="demo"&gt;&lt;/div&gt;
 &lt;script&gt;
-    new Croppie(document.querySelector('.demo'), {
-        url: 'demo/demo-1.jpg',
-    });
-&lt;/script&gt;
-&lt;!-- or even simpler --&gt;
-&lt;img class="my-image" src="demo/demo-1.jpg" /&gt;
-&lt;script&gt;
-    new Croppie(document.querySelector('.my-image'));
+    var c = new Croppie(document.querySelector('.demo'));
+    c.bind({ url: 'demo/demo-1.jpg' });
 &lt;/script&gt;
 </code></pre>
             </div>
@@ -294,6 +288,7 @@ var resize = new Croppie(el, {
 });
 resize.bind({
     url: 'demo/demo-2.jpg',
+    zoom: 0,
 });
 //on button click
 resize.result({ type: 'blob' }).then(function (blob) {

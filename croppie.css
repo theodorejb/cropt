@@ -83,10 +83,6 @@
     margin-top: -5px;
 }
 
-.croppie-container .cr-original-image {
-    display: none;
-}
-
 .croppie-container .cr-vp-circle {
     border-radius: 50%;
 }

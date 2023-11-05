@@ -1139,28 +1139,7 @@
         this.element = element;
         this.options = deepExtend(clone(Croppie.defaults), opts);
 
-        if (this.element.tagName.toLowerCase() === 'img') {
-            var origImage = this.element;
-            origImage.classList.add('cr-original-image');
-            origImage.setAttribute('aria-hidden', 'true');
-            origImage.setAttribute('alt', '');
-            var replacementDiv = document.createElement('div');
-            this.element.parentNode.appendChild(replacementDiv);
-            replacementDiv.appendChild(origImage);
-            this.element = replacementDiv;
-            this.options.url = this.options.url || origImage.src;
-        }
-
         _create.call(this);
-        if (this.options.url) {
-            var bindOpts = {
-                url: this.options.url,
-                points: this.options.points
-            };
-            delete this.options['url'];
-            delete this.options['points'];
-            _bind.call(this, bindOpts);
-        }
     }
 
     Croppie.defaults = {
