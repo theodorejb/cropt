@@ -891,11 +891,6 @@
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
 
-        if (data.backgroundColor) {
-            ctx.fillStyle = data.backgroundColor;
-            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-        }
-
         // By default assume we're going to draw the entire
         // source image onto the destination canvas.
         var sx = left,
@@ -1083,11 +1078,9 @@
         var self = this,
             data = _get.call(self),
             opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
-            resultType = (typeof (options) === 'string' ? options : opts.type),
             size = opts.size || 'viewport',
             format = opts.format,
             quality = opts.quality,
-            backgroundColor = opts.backgroundColor,
             circle = typeof opts.circle === 'boolean' ? opts.circle : (self.options.viewport.type === 'circle'),
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
@@ -1116,10 +1109,9 @@
 
         data.circle = circle;
         data.url = self.data.url;
-        data.backgroundColor = backgroundColor;
 
         prom = new Promise(function (resolve) {
-            switch(resultType) {
+            switch(opts.type) {
                 case 'rawcanvas':
                     resolve(_getCanvas.call(self, data));
                     break;

@@ -86,9 +86,7 @@ var Demo = (function() {
         	console.log('resize update', ev);
         });
 		document.querySelector('.resizer-result').addEventListener('click', function (ev) {
-			resize.result({
-				type: 'blob'
-			}).then(function (blob) {
+			resize.result({ type: 'blob' }).then(function (blob) {
 				popupResult({
 					src: window.URL.createObjectURL(blob)
 				});
