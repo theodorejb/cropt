@@ -104,15 +104,6 @@
     text-align: center;
 }
 
-.croppie-result {
-    position: relative;
-    overflow: hidden;
-}
-
-.croppie-result img {
-    position: absolute;
-}
-
 .croppie-container .cr-image,
 .croppie-container .cr-overlay,
 .croppie-container .cr-viewport {

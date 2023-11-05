@@ -177,9 +177,6 @@ c.method(args);</code></pre>
                                     <code class="language-javascript">'base64'</code> returns the cropped image encoded in base64
                                 </li>
                                 <li class="values">
-                                    <code class="language-javascript">'html'</code> returns html of the image positioned within an div of hidden overflow
-                                </li>
-                                <li class="values">
                                     <code class="language-javascript">'blob'</code> returns a blob of the cropped image
                                 </li>
                                 <li class="values">
@@ -268,13 +265,12 @@ basic.bind({
     points: [77,469,280,739]
 });
 //on button click
-basic.result('html').then(function (html) {
-    // html is div (overflow hidden)
-    // with img positioned inside.
+basic.result({ type: 'base64' }).then(function (resp) {
+    // resp contains data URI which can
+    // be set as the src of an image element.
 });</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
-                              <input type="number" class="basic-width" placeholder="width" /> x <input type="number" class="basic-height" placeholder="height" />
                           </div>
                         </div>
                         <div class="col-1-2">

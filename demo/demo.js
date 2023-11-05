@@ -61,21 +61,7 @@ var Demo = (function() {
 
 		var basicResult = document.querySelector('.basic-result');
 		basicResult.addEventListener('click', function () {
-			var w = parseInt(document.querySelector('.basic-width').value, 10),
-				h = parseInt(document.querySelector('.basic-height').value, 10),
-				size = 'viewport';
-			if (w || h) {
-				size = { width: w, height: h };
-			}
-
-			basic.result({
-				type: 'base64',
-				size: size,
-				resultSize: {
-					width: 50,
-					height: 50
-				}
-			}).then(function (resp) {
+			basic.result({ type: 'base64' }).then(function (resp) {
 				popupResult({
 					src: resp
 				});
