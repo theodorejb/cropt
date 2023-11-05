@@ -743,7 +743,6 @@
             return;
         }
 
-        self.options.update.call(self, data);
         var ev = new CustomEvent('update', { detail: data });
         self.element.dispatchEvent(ev);
     }
@@ -1130,7 +1129,6 @@
         enableResize: false,
         mouseWheelZoom: true,
         enableKeyMovement: true,
-        update: function () { }
     };
 
     deepExtend(Croppie.prototype, {
