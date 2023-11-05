@@ -1017,14 +1017,6 @@
                 var y1 = y0 + height;
                 self.data.points = [x0, y0, x1, y1];
             }
-            else if (self.options.relative) {
-                points = [
-                    points[0] * img.naturalWidth / 100,
-                    points[1] * img.naturalHeight / 100,
-                    points[2] * img.naturalWidth / 100,
-                    points[3] * img.naturalHeight / 100
-                ];
-            }
 
             self.data.points = points.map(function (p) {
                 return parseFloat(p);
@@ -1197,13 +1189,6 @@
         },
         get: function () {
             var data = _get.call(this);
-            var points = data.points;
-            if (this.options.relative) {
-                points[0] /= this.elements.img.naturalWidth / 100;
-                points[1] /= this.elements.img.naturalHeight / 100;
-                points[2] /= this.elements.img.naturalWidth / 100;
-                points[3] /= this.elements.img.naturalHeight / 100;
-            }
             return data;
         },
         result: function (type) {
