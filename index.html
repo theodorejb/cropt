@@ -107,18 +107,6 @@ c.method(args);</code></pre>
                             <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
                             <span class="default">Default</span><code class="language-javascript">''</code>
                         </li>
-                        <li id="enableExif">
-                            <strong class="focus">enableExif</strong><em>boolean</em>
-                            <p>Enable exif orientation reading.  Tells Croppie to read exif orientation from the image data and orient the image correctly before rendering to the page.</p>
-                            <p>Requires <a href="https://github.com/exif-js/exif-js">exif.js</a></p>
-                            <span class="default">Default</span><code class="language-javascript">false</code>
-                        </li>
-                        <li id="enableOrientation">
-                            <strong class="focus">enableOrientation</strong><em>boolean</em>
-                            <p>Enable or disable support for specifying a custom orientation when binding images (See <code class="language-javascript">bind</code> method)</p>
-                            <span class="default">Default</span>
-                            <code class="language-javascript">false</code>
-                        </li>
                         <li id="enableResize">
                             <strong class="focus">enableResize</strong><em>boolean</em>
                             <p>Enable or disable support for resizing the viewport area.</p>
@@ -128,11 +116,6 @@ c.method(args);</code></pre>
                         <li id="enableZoom">
                             <strong class="focus">enableZoom</strong><em>boolean</em>
                             <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
-                            <span class="default">Default</span><code class="language-javascript">true</code>
-                        </li>
-                        <li id="enforceBoundary">
-                            <strong class="focus">enforceBoundary</strong><em>boolean</em><i>* Experimental</i>
-                            <p>Restricts zoom so image cannot be smaller than viewport</p>
                             <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li id="mouseWheelZoom">
@@ -155,7 +138,7 @@ c.method(args);</code></pre>
                                 type: 'square'
                             }</code>
                             <br /><br />
-                            <span class="default">Valid type values:</span><code class="language-javascript">'square' 'circle'</code>
+                            <span class="default">Valid type values:</span><code class="language-javascript">'square' | 'circle'</code>
                         </li>
                     </ul>
                 </section>
@@ -167,7 +150,7 @@ c.method(args);</code></pre>
                             <p>Get the crop points, and the zoom of the image.</p>
                         </li>
                         <li id="bind">
-                            <strong class="focus">bind({ url, points, orientation, zoom })</strong><em>Promise</em>
+                            <strong class="focus">bind({ url, points, zoom })</strong><em>Promise</em>
                             <p>Bind an image to the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
                             <span class="default">Parameters</span>
                             <br />
@@ -175,21 +158,6 @@ c.method(args);</code></pre>
                                 <li><code class="language-javascript">url</code> URL to image</li>
                                 <li><code class="language-javascript">points</code> Array of points that translate into <code class="language-javascript">[topLeftX, topLeftY, bottomRightX, bottomRightY]</code></li>
                                 <li><code class="language-javascript">zoom</code> Apply zoom after image has been bound </li>
-                                <li><code class="language-javascript">orientation</code> Custom orientation, applied after exif orientation (if enabled). Only works with 
-                                    <code class="language-javascript">enableOrientation</code> option enabled (see 'Options').
-                                    <br />
-                                    Valid options are:
-                                    <ul>
-                                        <li><code class="language-javascript">1</code> unchanged</li>
-                                        <li><code class="language-javascript">2</code> flipped horizontally</li>
-                                        <li><code class="language-javascript">3</code> rotated 180 degrees</li>
-                                        <li><code class="language-javascript">4</code> flipped vertically</li>
-                                        <li><code class="language-javascript">5</code> flipped horizontally, then rotated left by 90 degrees</li>
-                                        <li><code class="language-javascript">6</code> rotated clockwise by 90 degrees</li>
-                                        <li><code class="language-javascript">7</code> flipped horizontally, then rotated right by 90 degrees</li>
-                                        <li><code class="language-javascript">8</code> rotated counter-clockwise by 90 degrees</li>
-                                    </ul>
-                                </li>
                             </ul>
                         </li>
                         <li id="destroy">
@@ -203,13 +171,10 @@ c.method(args);</code></pre>
                             <br />
                             <ul class="parameter-list">
                                 <li>
-                                    <code class="language-javascript">type</code> The type of result to return defaults to <code class="language-javascript">'canvas'</code>
+                                    <code class="language-javascript">type</code> The type of result to return defaults to <code class="language-javascript">'base64'</code>
                                 </li>
                                 <li class="values">
                                     <code class="language-javascript">'base64'</code> returns the cropped image encoded in base64
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'html'</code> returns html of the image positioned within an div of hidden overflow
                                 </li>
                                 <li class="values">
                                     <code class="language-javascript">'blob'</code> returns a blob of the cropped image
@@ -236,7 +201,7 @@ c.method(args);</code></pre>
                                     <span class="default">Default:</span><code class="language-javascript">'png'</code>
                                 </li>
                                 <li class="values">
-                                    <span class="default">Valid values:</span><code class="language-javascript">'jpeg'|'png'|'webp'</code>
+                                    <span class="default">Valid values:</span><code class="language-javascript">'jpeg' | 'png' | 'webp'</code>
                                 </li>
                                 <li>
                                     <code class="language-javascript">quality</code> Number between 0 and 1 indicating image quality.
@@ -248,16 +213,7 @@ c.method(args);</code></pre>
                                      <code class=" language-javascript">circle</code> force the result to be cropped into a circle
                                 </li>
                                 <li class="values">
-                                    <span class="default">Valid Values:</span><code class="language-javascript">true</code><code class="language-javascript">false</code>
-                                </li>
-                            </ul>
-                        </li>
-                        <li id="rotate">
-                            <strong class="focus">rotate(degrees)</strong><em></em>
-                            <p>Rotate the image by a specified degree amount.  Only works with <code class="language-javascript">enableOrientation</code> option enabled (see 'Options').</p>
-                            <ul class="parameter-list">
-                                <li>
-                                    <code class="language-javascript">degrees</code> <span class="default">Valid Values:</span><code>90, 180, 270, -90, -180, -270</code>
+                                    <span class="default">Valid Values:</span><code class="language-javascript">true | false</code>
                                 </li>
                             </ul>
                         </li>
@@ -309,13 +265,12 @@ basic.bind({
     points: [77,469,280,739]
 });
 //on button click
-basic.result('html').then(function (html) {
-    // html is div (overflow hidden)
-    // with img positioned inside.
+basic.result({ type: 'base64' }).then(function (resp) {
+    // resp contains data URI which can
+    // be set as the src of an image element.
 });</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
-                              <input type="number" class="basic-width" placeholder="width" /> x <input type="number" class="basic-height" placeholder="height" />
                           </div>
                         </div>
                         <div class="col-1-2">
@@ -328,53 +283,20 @@ basic.result('html').then(function (html) {
                     <div class="container">
                         <div class="grid">
                             <div class="col-1-2">
-                                <div id="vanilla-demo"></div>
-                            </div>
-                            <div class="col-1-2">
-                                <strong>Vanilla Example</strong>
-                                <pre class="language-javascript"><code class="language-javascript">var el = document.getElementById('vanilla-demo');
-var vanilla = new Croppie(el, {
-    viewport: { width: 100, height: 100 },
-    boundary: { width: 300, height: 300 },
-    showZoomer: false,
-    enableOrientation: true
-});
-vanilla.bind({
-    url: 'demo/demo-2.jpg',
-    orientation: 4
-});
-//on button click
-vanilla.result('blob').then(function(blob) {
-    // do something with cropped blob
-});</code></pre>
-                                <div class="actions">
-                                    <button class="vanilla-result">Result</button>
-                                    <button class="vanilla-rotate" data-deg="-90">Rotate Left</button>
-                                    <button class="vanilla-rotate" data-deg="90">Rotate Right</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="demo-wrap">
-                    <div class="container">
-                        <div class="grid">
-                            <div class="col-1-2">
                                 <strong>Resizer Example</strong>
                                 <pre class="language-javascript"><code class="language-javascript">var el = document.getElementById('resizer-demo');
 var resize = new Croppie(el, {
-    viewport: { width: 100, height: 100 },
+    viewport: { width: 150, height: 150 },
     boundary: { width: 300, height: 300 },
     showZoomer: false,
     enableResize: true,
-    enableOrientation: true,
     mouseWheelZoom: 'ctrl'
 });
 resize.bind({
     url: 'demo/demo-2.jpg',
 });
 //on button click
-resize.result('blob').then(function(blob) {
+resize.result({ type: 'blob' }).then(function (blob) {
     // do something with cropped blob
 });</code></pre>
                                 <div class="actions">
@@ -391,10 +313,9 @@ resize.result('blob').then(function(blob) {
                     <div class="container">
                     <div class="grid">
                         <div class="col-1-2">
-                            <strong>Upload Example (with exif orientation compatability)</strong>
+                            <strong>Upload Example</strong>
                             <pre class="language-javascript"><code class="language-javascript">var uploadEl = document.getElementById('upload-demo');
 var uploadCrop = new Croppie(uploadEl, {
-    enableExif: true,
     viewport: {
         width: 200,
         height: 200,
