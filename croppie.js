@@ -524,30 +524,28 @@
         self.elements.zoomer.setAttribute('aria-valuenow', self._currentZoom);
         applyCss();
 
-        if (self.options.enforceBoundary) {
-            var boundaries = _getVirtualBoundaries.call(self, vpRect),
-                transBoundaries = boundaries.translate,
-                oBoundaries = boundaries.origin;
+        var boundaries = _getVirtualBoundaries.call(self, vpRect),
+            transBoundaries = boundaries.translate,
+            oBoundaries = boundaries.origin;
 
-            if (transform.x >= transBoundaries.maxX) {
-                origin.x = oBoundaries.minX;
-                transform.x = transBoundaries.maxX;
-            }
+        if (transform.x >= transBoundaries.maxX) {
+            origin.x = oBoundaries.minX;
+            transform.x = transBoundaries.maxX;
+        }
 
-            if (transform.x <= transBoundaries.minX) {
-                origin.x = oBoundaries.maxX;
-                transform.x = transBoundaries.minX;
-            }
+        if (transform.x <= transBoundaries.minX) {
+            origin.x = oBoundaries.maxX;
+            transform.x = transBoundaries.minX;
+        }
 
-            if (transform.y >= transBoundaries.maxY) {
-                origin.y = oBoundaries.minY;
-                transform.y = transBoundaries.maxY;
-            }
+        if (transform.y >= transBoundaries.maxY) {
+            origin.y = oBoundaries.minY;
+            transform.y = transBoundaries.maxY;
+        }
 
-            if (transform.y <= transBoundaries.minY) {
-                origin.y = oBoundaries.maxY;
-                transform.y = transBoundaries.minY;
-            }
+        if (transform.y <= transBoundaries.minY) {
+            origin.y = oBoundaries.maxY;
+            transform.y = transBoundaries.minY;
         }
         applyCss();
         _debouncedOverlay.call(self);
@@ -649,17 +647,11 @@
                 top = transform.y + deltaY,
                 left = transform.x + deltaX;
 
-            if (self.options.enforceBoundary) {
-                if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-                    transform.y = top;
-                }
-
-                if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
-                    transform.x = left;
-                }
-            }
-            else {
+            if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
                 transform.y = top;
+            }
+
+            if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
                 transform.x = left;
             }
         }
@@ -891,8 +883,7 @@
 
     function _updateZoomLimits (initial) {
         var self = this,
-            minZoom = Math.max(self.options.minZoom, 0) || 0,
-            maxZoom = self.options.maxZoom || 1.5,
+            maxZoom = 1,
             initialZoom,
             defaultInitialZoom,
             zoomer = self.elements.zoomer,
@@ -900,16 +891,12 @@
             boundaryData = self.elements.boundary.getBoundingClientRect(),
             imgData = naturalImageDimensions(self.elements.img, self.data.orientation),
             vpData = self.elements.viewport.getBoundingClientRect(),
-            minW,
-            minH;
-        if (self.options.enforceBoundary) {
-            minW = vpData.width / imgData.width;
-            minH = vpData.height / imgData.height;
+            minW = vpData.width / imgData.width,
+            minH = vpData.height / imgData.height,
             minZoom = Math.max(minW, minH);
-        }
 
         if (minZoom >= maxZoom) {
-            maxZoom = minZoom + 1;
+            maxZoom += minZoom;
         }
 
         zoomer.min = fix(minZoom, 4);
@@ -1197,7 +1184,7 @@
             scale = 1;
         }
 
-        var max = self.options.enforceBoundary ? 0 : Number.NEGATIVE_INFINITY;
+        var max = 0;
         x1 = Math.max(max, x1 / scale);
         y1 = Math.max(max, y1 / scale);
         x2 = Math.max(max, x2 / scale);
@@ -1365,7 +1352,6 @@
         enableZoom: true,
         enableResize: false,
         mouseWheelZoom: true,
-        enforceBoundary: true,
         enableOrientation: false,
         enableKeyMovement: true,
         update: function () { }
