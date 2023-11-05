@@ -957,7 +957,7 @@
         this.elements.img = img;
     }
 
-    function _bind(options, cb) {
+    function _bind(options) {
         var self = this,
             url,
             points = [],
@@ -1015,7 +1015,6 @@
             });
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
-            cb && cb();
         });
     }
 
@@ -1153,8 +1152,8 @@
     };
 
     deepExtend(Croppie.prototype, {
-        bind: function (options, cb) {
-            return _bind.call(this, options, cb);
+        bind: function (options) {
+            return _bind.call(this, options);
         },
         get: function () {
             var data = _get.call(this);
