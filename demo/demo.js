@@ -69,7 +69,7 @@ var Demo = (function() {
 			}
 
 			basic.result({
-				type: 'canvas',
+				type: 'base64',
 				size: size,
 				resultSize: {
 					width: 50,
@@ -149,7 +149,7 @@ var Demo = (function() {
 
 		document.querySelector('.upload-result').addEventListener('click', function (ev) {
 			uploadCrop.result({
-				type: 'canvas',
+				type: 'base64',
 				size: 'viewport'
 			}).then(function (resp) {
 				popupResult({

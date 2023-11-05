@@ -1096,7 +1096,7 @@
 
     function _result(options) {
         var RESULT_DEFAULTS = {
-            type: 'canvas',
+            type: 'base64',
             format: 'png',
             quality: 1
         };
@@ -1105,7 +1105,7 @@
         var self = this,
             data = _get.call(self),
             opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
-            resultType = (typeof (options) === 'string' ? options : (opts.type || 'base64')),
+            resultType = (typeof (options) === 'string' ? options : opts.type),
             size = opts.size || 'viewport',
             format = opts.format,
             quality = opts.quality,
@@ -1141,12 +1141,10 @@
         data.backgroundColor = backgroundColor;
 
         prom = new Promise(function (resolve) {
-            switch(resultType.toLowerCase())
-            {
+            switch(resultType) {
                 case 'rawcanvas':
                     resolve(_getCanvas.call(self, data));
                     break;
-                case 'canvas':
                 case 'base64':
                     resolve(_getBase64Result.call(self, data));
                     break;
