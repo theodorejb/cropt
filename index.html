@@ -13,10 +13,16 @@
         <meta property="og:description" content="Croppie is an easy to use javascript image cropper.">
         <meta property="og:image" content="https://foliotek.github.io/Croppie/demo/hero.png">
 
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,700' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" type="text/css" href="demo/prism.css" />
-        <link rel="stylesheet" type="text/css" href="croppie.css" />
-        <link rel="stylesheet" type="text/css" href="demo/demo.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,700">
+        <link rel="stylesheet" href="croppie.css" />
+        <link rel="stylesheet" href="demo/demo.css" />
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" media="(prefers-color-scheme: dark)">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="icon" href="https://foliotek.github.io/favico-64.png" />
     </head>
     <body>
@@ -49,7 +55,7 @@
         <section class="simple">
             <div class="section-header"><h2>The Basics</h2></div>
             <div class="container">
-                <pre class="language-html"><code class="language-html">&lt;div class="demo"&gt;&lt;/div&gt;
+                <pre><code class="language-html">&lt;div class="demo"&gt;&lt;/div&gt;
 &lt;script&gt;
     var c = new Croppie(document.querySelector('.demo'));
     c.bind({ url: 'demo/demo-1.jpg' });
@@ -62,12 +68,10 @@
             <div class="section-header"><h2>Installation</h2></div>
             <div class="container">
                 <p><strong>NPM:</strong></p>
-                <pre class="language-javascript" style="width: 225px;"><code class="language-javascript">npm install croppie</code></pre>
-                <p><strong>Download:</strong></p>
-                <p><a href="https://github.com/Foliotek/Croppie/releases">Source</a></p>
+                <pre><code class="language-bash">npm install croppie</code></pre>
                 <hr />
                 <p><strong>Then add the following elements to your page:</strong></p>
-                <pre class="language-html"><code class="language-html">&lt;link rel="stylesheet" href="croppie.css" /&gt;
+                <pre><code class="language-html">&lt;link rel="stylesheet" href="croppie.css" /&gt;
 &lt;script src="croppie.js"&gt;&lt;/script&gt;</code></pre>
             </div>
         </section>
@@ -77,7 +81,7 @@
             <div class="container">
                 <p>You can initialize Croppie with the following code:</p>
                 
-              <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
+              <pre><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
 // call a method
 c.method(args);</code></pre>
             </div>
@@ -229,7 +233,7 @@ c.method(args);</code></pre>
                         <li id="update">
                             <strong class="focus">update(croppie)</strong><em>Croppie</em>
                             <p>Triggered when a drag or zoom occurs</p>
-                            <pre class="language-javascript"><code class="language-javascript">document.getElementById('my-croppie').addEventListener('update', function (ev) {
+                            <pre><code class="language-javascript">document.getElementById('my-croppie').addEventListener('update', function (ev) {
     var cropData = ev.detail;
 });</code></pre>
                         </li>
@@ -248,7 +252,7 @@ c.method(args);</code></pre>
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Basic Example</strong>
-                          <pre class="language-javascript"><code class="language-javascript">var basicEl = document.getElementById('demo-basic');
+                          <pre><code class="language-javascript">var basicEl = document.getElementById('demo-basic');
 var basic = new Croppie(basicEl, {
     viewport: {
         width: 150,
@@ -279,7 +283,7 @@ basic.result({ type: 'base64' }).then(function (resp) {
                         <div class="grid">
                             <div class="col-1-2">
                                 <strong>Resizer Example</strong>
-                                <pre class="language-javascript"><code class="language-javascript">var el = document.getElementById('resizer-demo');
+                                <pre><code class="language-javascript">var el = document.getElementById('resizer-demo');
 var resize = new Croppie(el, {
     viewport: { width: 150, height: 150 },
     boundary: { width: 300, height: 300 },
@@ -310,7 +314,7 @@ resize.result({ type: 'blob' }).then(function (blob) {
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Upload Example</strong>
-                            <pre class="language-javascript"><code class="language-javascript">var uploadEl = document.getElementById('upload-demo');
+                            <pre><code class="language-javascript">var uploadEl = document.getElementById('upload-demo');
 var uploadCrop = new Croppie(uploadEl, {
     viewport: {
         width: 200,
@@ -348,7 +352,7 @@ var uploadCrop = new Croppie(uploadEl, {
                             <strong>Hidden Example</strong>
                             <p>When binding a croppie element that isn't visible, i.e., in a modal - you'll need to call refresh on your croppie instance, to indicate to croppie that the position has changed and it needs to recalculate its points.</p>
 
-                            <pre class="language-javascript"><code class="language-javascript">hiddenCrop.refresh();</code></pre>
+                            <pre><code class="language-javascript">hiddenCrop.refresh();</code></pre>
                             <div class="actions">
                                 <button class="toggle-hidden">Toggle Croppie</button>
                             </div>
@@ -374,7 +378,7 @@ var uploadCrop = new Croppie(uploadEl, {
                     <a id="visibility" name="visibility"></a>
                     <h3>Visibility and Binding</h3>
                     <p>Croppie is dependent on its container being visible when the <a href="#bind">bind</a> method is called.  This can be an issue when your croppie component is inside a modal that isn't shown. Let's take the bootstrap modal for example..</p>
-                    <pre class="language-javascript"><code class="language-javascript">var cropEl = document.getElementById('my-croppie');
+                    <pre><code class="language-javascript">var cropEl = document.getElementById('my-croppie');
 var myCroppie = new Croppie(cropEl, opts);
 document.getElementById('my-modal').addEventListener('shown.bs.modal', function () {
     myCroppie.bind(bindOpts);
@@ -421,10 +425,12 @@ document.getElementById('my-modal').addEventListener('shown.bs.modal', function 
             Copyright &copy; <span id="year">2017</span> | Foliotek
         </footer>
 
-        <script src="demo/prism.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script type="module" src="demo/demo.js"></script>
         <script>
+            hljs.configure({
+                cssSelector: "code"
+            });
+            hljs.highlightAll();
             document.getElementById('year').innerHTML = (new Date).getFullYear();
         </script>
         <a href="https://github.com/foliotek/croppie" class="github-corner"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); -webkit-transform: sale(-1, 1);"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style></a>
