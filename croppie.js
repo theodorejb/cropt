@@ -301,37 +301,39 @@ export class Croppie {
     }
 
     #create() {
-        var customViewportClass = this.options.viewport.type ? 'cr-vp-' + this.options.viewport.type : null,
-            boundary, img, viewport, overlay, bw, bh;
+        var customViewportClass = this.options.viewport.type ? 'cr-vp-' + this.options.viewport.type : null;
 
         // Properties on class
         this.data = {};
         this.elements = {};
 
-        boundary = this.elements.boundary = document.createElement('div');
-        viewport = this.elements.viewport = document.createElement('div');
-        img = this.elements.img = document.createElement('img');
-        overlay = this.elements.overlay = document.createElement('div');
+        var boundary = this.elements.boundary = document.createElement('div');
+        var viewport = this.elements.viewport = document.createElement('div');
+        var img = this.elements.img = document.createElement('img');
+        var overlay = this.elements.overlay = document.createElement('div');
         this.elements.preview = img;
 
         boundary.classList.add('cr-boundary');
         boundary.setAttribute('aria-dropeffect', 'none');
-        bw = this.options.boundary.width;
-        bh = this.options.boundary.height;
+        var bw = this.options.boundary.width;
+        var bh = this.options.boundary.height;
+
         css(boundary, {
             width: (bw + (isNaN(bw) ? '' : 'px')),
             height: (bh + (isNaN(bh) ? '' : 'px'))
         });
 
+        viewport.setAttribute('tabindex', 0);
         viewport.classList.add('cr-viewport');
+
         if (customViewportClass) {
             viewport.classList.add(customViewportClass);
         }
+
         css(viewport, {
             width: this.options.viewport.width + 'px',
             height: this.options.viewport.height + 'px'
         });
-        viewport.setAttribute('tabindex', 0);
 
         this.elements.preview.classList.add('cr-image');
         this.elements.preview.setAttribute('alt', 'preview');
@@ -631,7 +633,6 @@ export class Croppie {
         var direction;
         var originalX;
         var originalY;
-        var minSize = 50;
         var maxWidth;
         var maxHeight;
         var vr;
@@ -671,6 +672,7 @@ export class Croppie {
             var deltaY = pageY - originalY;
             var newHeight = this.options.viewport.height + deltaY;
             var newWidth = this.options.viewport.width + deltaX;
+            var minSize = 50;
 
             if (direction === 'v' && newHeight >= minSize && newHeight <= maxHeight) {
                 css(wrap, {
@@ -777,7 +779,6 @@ export class Croppie {
 
         this.element.appendChild(wrap);
         wrap.appendChild(zoomer);
-
         this._currentZoom = 1;
 
         let change = () => {
@@ -790,7 +791,7 @@ export class Croppie {
         };
 
         let scroll = (ev) => {
-            var delta, targetZoom;
+            var delta;
 
             if (this.options.mouseWheelZoom === 'ctrl' && ev.ctrlKey !== true){
               return 0;
@@ -804,8 +805,7 @@ export class Croppie {
                 delta = 0;
             }
 
-            targetZoom = this._currentZoom + (delta * this._currentZoom);
-
+            var targetZoom = this._currentZoom + (delta * this._currentZoom);
             ev.preventDefault();
             this.#setZoomerVal(targetZoom);
             change();
@@ -820,12 +820,13 @@ export class Croppie {
         }
     }
 
-    #setZoomerVal(v) {
+    #setZoomerVal(val) {
         if (this.options.enableZoom) {
-            var z = this.elements.zoomer,
-                val = fix(v, 4);
+            var z = this.elements.zoomer;
+            var zMin = parseFloat(z.min);
+            var zMax = parseFloat(z.max);
 
-            z.value = Math.max(parseFloat(z.min), Math.min(parseFloat(z.max), val)).toString();
+            z.value = Math.max(zMin, Math.min(zMax, fix(val, 4))).toString();
         }
     }
 
@@ -920,7 +921,6 @@ export class Croppie {
     #updatePropertiesFromImage() {
         var initialZoom = 1,
             img = this.elements.preview,
-            imgData,
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin();
 
@@ -936,8 +936,7 @@ export class Croppie {
         };
         css(img, cssReset);
 
-        imgData = this.elements.preview.getBoundingClientRect();
-
+        var imgData = this.elements.preview.getBoundingClientRect();
         this._originalImageWidth = imgData.width;
         this._originalImageHeight = imgData.height;
 
