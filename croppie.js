@@ -149,6 +149,7 @@ export class Croppie {
         },
         customClass: '',
         showZoomer: true,
+        zoomerInputClass: 'cr-slider',
         enableZoom: true,
         enableResize: false,
         mouseWheelZoom: true,
@@ -237,7 +238,7 @@ export class Croppie {
     result(options) {
         var RESULT_DEFAULTS = {
             type: 'base64',
-            format: 'png',
+            format: 'webp',
             quality: 1
         };
         var RESULT_FORMATS = ['jpeg', 'webp', 'png'];
@@ -776,7 +777,7 @@ export class Croppie {
 
         wrap.classList.add('cr-slider-wrap');
         wrap.style.width = this.elements.boundary.style.width;
-        zoomer.classList.add('cr-slider');
+        zoomer.classList.add(this.options.zoomerInputClass);
         zoomer.type = 'range';
         zoomer.step = '0.0001';
         zoomer.value = '1';
