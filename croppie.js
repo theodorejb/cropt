@@ -94,13 +94,7 @@ function dispatchChange(element) {
     element.dispatchEvent(event);
 }
 
-function css(el, styles, val) {
-    if (typeof (styles) === 'string') {
-        var tmp = styles;
-        styles = {};
-        styles[tmp] = val;
-    }
-
+function css(el, styles) {
     for (var prop in styles) {
         el.style[prop] = styles[prop];
     }
@@ -493,21 +487,18 @@ export class Croppie {
         };
 
         let keyMove = (movement, transform) => {
-            var deltaX = movement[0],
-                deltaY = movement[1],
-                newCss = {};
+            assignTransformCoordinates(movement[0], movement[1]);
 
-            assignTransformCoordinates(deltaX, deltaY);
+            css(this.elements.preview, {
+                transform: transform.toString(),
+            });
 
-            newCss.transform = transform.toString();
-            css(this.elements.preview, newCss);
             this.#updateOverlay();
             document.body.style.userSelect = '';
-            this.#updateCenterPoint();
-            
+            this.#updateCenterPoint();            
             this.#triggerUpdate();
             originalDistance = 0;
-        }
+        };
 
         let mouseMove = (ev) => {
             ev.preventDefault();
@@ -521,8 +512,7 @@ export class Croppie {
             }
 
             var deltaX = pageX - originalX,
-                deltaY = pageY - originalY,
-                newCss = {};
+                deltaY = pageY - originalY;
 
             if (ev.type === 'touchmove') {
                 if (ev.touches.length > 1) {
@@ -544,8 +534,10 @@ export class Croppie {
 
             assignTransformCoordinates(deltaX, deltaY);
 
-            newCss.transform = transform.toString();
-            css(this.elements.preview, newCss);
+            css(this.elements.preview, {
+                transform: transform.toString(),
+            });
+
             this.#updateOverlay();
             originalY = pageY;
             originalX = pageX;
@@ -843,10 +835,10 @@ export class Croppie {
             origin = ui ? ui.origin : new TransformOrigin(this.elements.preview);
 
         let applyCss = () => {
-            var transCss = {};
-            transCss.transform = transform.toString();
-            transCss.transformOrigin = origin.toString();
-            css(this.elements.preview, transCss);
+            css(this.elements.preview, {
+                transform: transform.toString(),
+                transformOrigin: origin.toString(),
+            });
         };
 
         this._currentZoom = ui ? ui.value : this._currentZoom;
@@ -927,7 +919,6 @@ export class Croppie {
 
     #updatePropertiesFromImage() {
         var initialZoom = 1,
-            cssReset = {},
             img = this.elements.preview,
             imgData,
             transformReset = new Transform(0, 0, initialZoom),
@@ -938,9 +929,11 @@ export class Croppie {
         }
 
         this.data.bound = true;
-        cssReset.transform = transformReset.toString();
-        cssReset.transformOrigin = originReset.toString();
-        cssReset['opacity'] = 1;
+        var cssReset = {
+            transform: transformReset.toString(),
+            transformOrigin: originReset.toString(),
+            opacity: 1,
+        };
         css(img, cssReset);
 
         imgData = this.elements.preview.getBoundingClientRect();
@@ -975,23 +968,21 @@ export class Croppie {
             transform = Transform.parse(this.elements.preview.style.transform),
             pc = new TransformOrigin(this.elements.preview),
             top = (vpData.top - data.top) + (vpData.height / 2),
-            left = (vpData.left - data.left) + (vpData.width / 2),
-            center = {},
-            adj = {};
+            left = (vpData.left - data.left) + (vpData.width / 2);
 
-        center.y = top / scale;
-        center.x = left / scale;
-
-        adj.y = (center.y - pc.y) * (1 - scale);
-        adj.x = (center.x - pc.x) * (1 - scale);
+        var center = { x: left / scale, y: top / scale };
+        var adj = {
+            x: (center.x - pc.x) * (1 - scale),
+            y: (center.y - pc.y) * (1 - scale),
+        };
 
         transform.x -= adj.x;
         transform.y -= adj.y;
 
-        var newCss = {};
-        newCss.transformOrigin = center.x + 'px ' + center.y + 'px';
-        newCss.transform = transform.toString();
-        css(this.elements.preview, newCss);
+        css(this.elements.preview, {
+            transform: transform.toString(),
+            transformOrigin: center.x + 'px ' + center.y + 'px',
+        });
     }
 
     #updateZoomLimits(initial) {
@@ -1041,12 +1032,12 @@ export class Croppie {
             originTop = points[1],
             originLeft = points[0],
             transformTop = (-1 * points[1]) + vpOffset.top,
-            transformLeft = (-1 * points[0]) + vpOffset.left,
-            newCss = {};
+            transformLeft = (-1 * points[0]) + vpOffset.left;
 
-        newCss.transformOrigin = originLeft + 'px ' + originTop + 'px';
-        newCss.transform = new Transform(transformLeft, transformTop, scale).toString();
-        css(this.elements.preview, newCss);
+        css(this.elements.preview, {
+            transform: new Transform(transformLeft, transformTop, scale).toString(),
+            transformOrigin: originLeft + 'px ' + originTop + 'px',
+        });
 
         this.#setZoomerVal(scale);
         this._currentZoom = scale;
@@ -1062,6 +1053,8 @@ export class Croppie {
             h = vpTop - ((imgDim.height - vpDim.height) / 2),
             transform = new Transform(w, h, this._currentZoom);
 
-        css(this.elements.preview, 'transform', transform.toString());
+        css(this.elements.preview, {
+            transform: transform.toString(),
+        });
     }
 }
