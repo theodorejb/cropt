@@ -226,8 +226,6 @@ h2 {
     display: inline-block;    
 }
 .upload-demo-wrap {
-    width: 300px;
-    height: 300px;
     margin: 0 auto;
 }
 
@@ -293,7 +291,7 @@ h2 {
     [class*='col-'] {
         width: auto;
         float: none;
-        margin: 10px 0;
+        margin: 10px 0 0;
         padding-left: 0;
         padding-right: 10px; /* column-space */
     }
@@ -303,6 +301,6 @@ h2 {
     }
 
     .croppie-container {
-        padding: 30px 0;
+        padding: 10px 0;
     }
 }
