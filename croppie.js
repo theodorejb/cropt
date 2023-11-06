@@ -116,27 +116,14 @@ function fix(v, decimalPoints) {
 
 function loadImage(src) {
     if (!src) { throw 'Source image missing'; }
-    
-    var img = new Image();
-    img.style.opacity = '0';
-    return new Promise(function (resolve, reject) {
-        img.removeAttribute('crossOrigin');
-        if (src.match(/^https?:\/\/|^\/\//)) {
-            img.setAttribute('crossOrigin', 'anonymous');
-        }
 
-        img.onload = function () {
-            img.style.opacity = '1';
-            setTimeout(function () {
-                resolve(img);
-            }, 1);
+    var img = new Image();
+
+    return new Promise(function (resolve, reject) {
+        img.onload = () => {
+            resolve(img);
         };
-        img.onerror = function (ev) {
-            img.style.opacity = 1;
-            setTimeout(function () {
-                reject(ev);
-            }, 1);
-        };
+        img.onerror = reject;
         img.src = src;
     });
 }
@@ -286,17 +273,15 @@ export class Croppie {
 
         data.url = this.data.url;
 
-        return new Promise((resolve) => {
-            switch(opts.type) {
-                case 'rawcanvas':
-                    resolve(this.#getCanvas(data));
-                    break;
-                case 'base64':
-                    resolve(this.#getBase64Result(data));
-                    break;
-                case 'blob':
-                    this.#getBlobResult(data).then(resolve);
-                    break;
+        return new Promise((resolve, reject) => {
+            if (opts.type === 'rawcanvas') {
+                resolve(this.#getCanvas(data));
+            } else if (opts.type === 'base64') {
+                resolve(this.#getBase64Result(data));
+            } else if (opts.type === 'blob') {
+                this.#getBlobResult(data).then(resolve);
+            } else {
+                reject('Invalid result type: ' + opts.type);
             }
         });
     }
@@ -391,63 +376,51 @@ export class Croppie {
         });
     }
 
-    #getCanvas(data) {
+    #getUnscaledCanvas(data) {
         var points = data.points,
-            left = num(points[0]),
-            top = num(points[1]),
+            sx = num(points[0]),
+            sy = num(points[1]),
             right = num(points[2]),
             bottom = num(points[3]),
-            width = right - left,
-            height = bottom - top,
-            canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d'),
-            canvasWidth = data.outputWidth || width,
-            canvasHeight = data.outputHeight || height;
+            sWidth = right - sx,
+            sHeight = bottom - sy;
 
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext("2d");
+        canvas.width = sWidth;
+        canvas.height = sHeight;
+        ctx.drawImage(this.elements.preview, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
 
-        // By default assume we're going to draw the entire
-        // source image onto the destination canvas.
-        var sx = left,
-            sy = top,
-            sWidth = width,
-            sHeight = height,
-            dx = 0,
-            dy = 0,
-            dWidth = canvasWidth,
-            dHeight = canvasHeight;
+        return canvas;
+    }
 
-        // Do not go outside of the original image's bounds along the x-axis.
-        // Handle translations when projecting onto the destination canvas.
+    #getCanvas(data) {
+        var oc = this.#getUnscaledCanvas(data);
+        var octx = oc.getContext('2d');
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext("2d");
+        canvas.width = data.outputWidth || oc.width;
+        canvas.height = data.outputHeight || oc.height;
 
-        // The smallest possible source x-position is 0.
-        if (left < 0) {
-            sx = 0;
-            dx = (Math.abs(left) / width) * canvasWidth;
+        var cur = {
+            width: oc.width,
+            height: oc.height,
+        }
+    
+        while (cur.width * 0.5 > canvas.width) {
+            // step down size by one half for smooth scaling
+            let curWidth = cur.width;
+            let curHeight = cur.height;
+
+            cur = {
+                width: Math.floor(cur.width * 0.5),
+                height: Math.floor(cur.height * 0.5)
+            };
+
+            octx.drawImage(oc, 0, 0, curWidth, curHeight, 0, 0, cur.width, cur.height);
         }
 
-        // The largest possible source width is the original image's width.
-        if (sWidth + sx > this._originalImageWidth) {
-            sWidth = this._originalImageWidth - sx;
-            dWidth =  (sWidth / width) * canvasWidth;
-        }
-
-        // Do not go outside of the original image's bounds along the y-axis.
-        // The smallest possible source y-position is 0.
-        if (top < 0) {
-            sy = 0;
-            dy = (Math.abs(top) / height) * canvasHeight;
-        }
-
-        // The largest possible source height is the original image's height.
-        if (sHeight + sy > this._originalImageHeight) {
-            sHeight = this._originalImageHeight - sy;
-            dHeight = (sHeight / height) * canvasHeight;
-        }
-
-        ctx.drawImage(this.elements.preview, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-
+        ctx.drawImage(oc, 0, 0, cur.width, cur.height, 0, 0, canvas.width, canvas.height);
         return canvas;
     }
 
