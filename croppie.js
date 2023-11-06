@@ -238,7 +238,7 @@ export class Croppie {
     result(options) {
         var RESULT_DEFAULTS = {
             type: 'base64',
-            format: 'png',
+            format: 'webp',
             quality: 1
         };
         var RESULT_FORMATS = ['jpeg', 'webp', 'png'];
