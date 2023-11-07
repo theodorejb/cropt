@@ -182,30 +182,7 @@ export class Croppie {
 
         return loadImage(src).then((img) => {
             this.#replaceImage(img);
-
-            if (!points.length) {
-                var natDim = naturalImageDimensions(img);
-                var rect = this.elements.viewport.getBoundingClientRect();
-                var aspectRatio = rect.width / rect.height;
-                var imgAspectRatio = natDim.width / natDim.height;
-                var width, height;
-
-                if (imgAspectRatio > aspectRatio) {
-                    height = natDim.height;
-                    width = height * aspectRatio;
-                } else {
-                    width = natDim.width;
-                    height = natDim.height / aspectRatio;
-                }
-
-                var x0 = (natDim.width - width) / 2;
-                var y0 = (natDim.height - height) / 2;
-                var x1 = x0 + width;
-                var y1 = y0 + height;
-                this.data.points = [x0, y0, x1, y1];
-            }
-
-            this.data.points = points.map((p) => parseFloat(p));
+            this.data.points = points;
             this.#updatePropertiesFromImage();
         });
     }
@@ -683,7 +660,7 @@ export class Croppie {
             }
 
             this.#updateOverlay();
-            this.#updateZoomLimits();
+            this.#updateZoomLimits(false);
             this.#updateCenterPoint();
             originalY = pageY;
             originalX = pageX;
@@ -871,7 +848,7 @@ export class Croppie {
     }
 
     #isVisible() {
-        return this.elements.preview.offsetHeight > 0 && this.elements.preview.offsetWidth > 0;
+        return this.elements.preview.offsetParent !== null;
     }
 
     #updateOverlay() {
@@ -889,36 +866,28 @@ export class Croppie {
     }
 
     #updatePropertiesFromImage() {
-        var initialZoom = 1,
-            img = this.elements.preview,
-            transformReset = new Transform(0, 0, initialZoom),
-            originReset = new TransformOrigin();
-
         if (!this.#isVisible() || this.data.bound) {// if the croppie isn't visible or it doesn't need binding
             return;
         }
 
+        var transformReset = new Transform(0, 0, 1);
         this.data.bound = true;
+
         var cssReset = {
             transform: transformReset.toString(),
-            transformOrigin: originReset.toString(),
-            opacity: 1,
+            transformOrigin: new TransformOrigin().toString(),
         };
-        css(img, cssReset);
-
-        var imgData = this.elements.preview.getBoundingClientRect();
-        this._originalImageWidth = imgData.width;
-        this._originalImageHeight = imgData.height;
+        css(this.elements.preview, cssReset);
 
         if (this.options.enableZoom) {
             this.#updateZoomLimits(true);
         } else {
-            this._currentZoom = initialZoom;
+            this._currentZoom = 1;
         }
 
         transformReset.scale = this._currentZoom;
         cssReset.transform = transformReset.toString();
-        css(img, cssReset);
+        css(this.elements.preview, cssReset);
 
         if (this.data.points.length) {
             this.#bindPoints(this.data.points);
@@ -954,6 +923,9 @@ export class Croppie {
         });
     }
 
+    /**
+     * @param {boolean} initial
+     */
     #updateZoomLimits(initial) {
         var maxZoom = 1,
             initialZoom,
@@ -974,12 +946,12 @@ export class Croppie {
         zoomer.min = fix(minZoom, 4);
         zoomer.max = fix(maxZoom, 4);
 
-        if (!initial && (scale < zoomer.min || scale > zoomer.max)) {
-            this.#setZoomerVal(scale < zoomer.min ? zoomer.min : zoomer.max);
-        } else if (initial) {
+        if (initial) {
             defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             initialZoom = this.data.boundZoom !== null ? this.data.boundZoom : defaultInitialZoom;
             this.#setZoomerVal(initialZoom);
+        } else if (scale < zoomer.min || scale > zoomer.max) {
+            this.#setZoomerVal(scale < zoomer.min ? zoomer.min : zoomer.max);
         }
 
         dispatchChange(zoomer);
