@@ -144,7 +144,6 @@ export class Croppie {
         customClass: '',
         showZoomer: true,
         zoomerInputClass: 'cr-slider',
-        enableZoom: true,
         enableResize: false,
         mouseWheelZoom: true,
         enableKeyMovement: true,
@@ -264,9 +263,7 @@ export class Croppie {
     destroy() {
         this.element.removeChild(this.elements.boundary);
         this.element.classList.remove('croppie-container');
-        if (this.options.enableZoom) {
-            this.element.removeChild(this.elements.zoomerWrap);
-        }
+        this.element.removeChild(this.elements.zoomerWrap);
         delete this.elements;
     }
 
@@ -323,10 +320,7 @@ export class Croppie {
         }
 
         this.#initDraggable();
-
-        if (this.options.enableZoom) {
-            this.#initializeZoom();
-        }
+        this.#initializeZoom();
 
         if (this.options.enableResize) {
             this.#initializeResize();
@@ -768,13 +762,11 @@ export class Croppie {
      * @param {number} val
      */
     #setZoomerVal(val) {
-        if (this.options.enableZoom) {
-            var z = this.elements.zoomer;
-            var zMin = parseFloat(z.min);
-            var zMax = parseFloat(z.max);
+        var z = this.elements.zoomer;
+        var zMin = parseFloat(z.min);
+        var zMax = parseFloat(z.max);
 
-            z.value = Math.max(zMin, Math.min(zMax, fix(val, 4))).toString();
-        }
+        z.value = Math.max(zMin, Math.min(zMax, fix(val, 4))).toString();
     }
 
     #onZoom(ui) {
@@ -868,12 +860,7 @@ export class Croppie {
         };
         css(this.elements.preview, cssReset);
 
-        if (this.options.enableZoom) {
-            this.#updateZoomLimits(true);
-        } else {
-            this._currentZoom = this.data.boundZoom ?? 1;
-        }
-
+        this.#updateZoomLimits(true);
         transformReset.scale = this._currentZoom;
         cssReset.transform = transformReset.toString();
         css(this.elements.preview, cssReset);

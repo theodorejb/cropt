@@ -52,17 +52,6 @@
                 </div>
             </div>
         </section>
-        <section class="simple">
-            <div class="section-header"><h2>The Basics</h2></div>
-            <div class="container">
-                <pre><code class="language-html">&lt;div class="demo"&gt;&lt;/div&gt;
-&lt;script&gt;
-    var c = new Croppie(document.querySelector('.demo'));
-    c.bind('demo/demo-1.jpg');
-&lt;/script&gt;
-</code></pre>
-            </div>
-        </section>
         <section class="installation">
             <a id="install" name="install"></a>
             <div class="section-header"><h2>Installation</h2></div>
@@ -80,10 +69,11 @@
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
                 <p>You can initialize Croppie with the following code:</p>
-                
-              <pre><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
-// call a method
-c.method(args);</code></pre>
+                <pre><code class="language-html">&lt;div id="demo"&gt;&lt;/div&gt;
+&lt;script&gt;
+    var c = new Croppie(document.getElementById('demo'), options);
+    c.bind('demo/demo-1.jpg');
+&lt;/script&gt;</code></pre>
             </div>
         </section>
 
@@ -110,11 +100,6 @@ c.method(args);</code></pre>
                             <p>Enable or disable support for resizing the viewport area.</p>
                             <span class="default">Default</span>
                             <code class="language-javascript">false</code>
-                        </li>
-                        <li id="enableZoom">
-                            <strong class="focus">enableZoom</strong><em>boolean</em>
-                            <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
-                            <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li id="mouseWheelZoom">
                             <strong class="focus">mouseWheelZoom</strong><em>bool/string</em>
