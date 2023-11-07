@@ -199,7 +199,7 @@ export class Croppie {
         });
     }
 
-    get() {
+    getPoints() {
         var imgData = this.elements.preview.getBoundingClientRect(),
             vpData = this.elements.viewport.getBoundingClientRect(),
             x1 = vpData.left - imgData.left,
@@ -220,8 +220,10 @@ export class Croppie {
         y2 = Math.max(0, y2 / scale);
 
         return {
-            points: [fix(x1), fix(y1), fix(x2), fix(y2)],
-            zoom: scale,
+            left: Math.round(x1),
+            top: Math.round(y1),
+            right: Math.round(x2),
+            bottom: Math.round(y2),
         };
     }
 
@@ -232,7 +234,7 @@ export class Croppie {
             quality: 1
         };
 
-        var data = this.get(),
+        var data = {},
             opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
             size = opts.size || 'viewport',
             vpRect = this.elements.viewport.getBoundingClientRect(),
@@ -261,9 +263,9 @@ export class Croppie {
             if (opts.type === 'rawcanvas') {
                 resolve(this.#getCanvas(data));
             } else if (opts.type === 'base64') {
-                resolve(this.#getBase64Result(data));
+                resolve(this.#getCanvas(data).toDataURL(data.format, data.quality));
             } else if (opts.type === 'blob') {
-                this.#getBlobResult(data).then(resolve);
+                this.#getCanvas(data).toBlob(resolve, data.format, data.quality);
             } else {
                 reject('Invalid result type: ' + opts.type);
             }
@@ -350,38 +352,22 @@ export class Croppie {
         }
     }
 
-    #getBase64Result(data) {
-        return this.#getCanvas(data).toDataURL(data.format, data.quality);
-    }
-
-    #getBlobResult(data) {
-        return new Promise((resolve) => {
-            this.#getCanvas(data).toBlob(function (blob) {
-                resolve(blob);
-            }, data.format, data.quality);
-        });
-    }
-
-    #getUnscaledCanvas(data) {
-        var points = data.points,
-            sx = num(points[0]),
-            sy = num(points[1]),
-            right = num(points[2]),
-            bottom = num(points[3]),
-            sWidth = right - sx,
-            sHeight = bottom - sy;
+    #getUnscaledCanvas() {
+        var p = this.getPoints();
+        var sWidth = p.right - p.left;
+        var sHeight = p.bottom - p.top;
 
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext("2d");
         canvas.width = sWidth;
         canvas.height = sHeight;
-        ctx.drawImage(this.elements.preview, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(this.elements.preview, p.left, p.top, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
 
         return canvas;
     }
 
     #getCanvas(data) {
-        var oc = this.#getUnscaledCanvas(data);
+        var oc = this.#getUnscaledCanvas();
         var octx = oc.getContext('2d');
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext("2d");
@@ -879,13 +865,11 @@ export class Croppie {
     }
 
     #triggerUpdate() {
-        var data = this.get();
-
         if (!this.#isVisible()) {
             return;
         }
 
-        var ev = new CustomEvent('update', { detail: data });
+        var ev = new CustomEvent('update', { detail: this.getPoints() });
         this.element.dispatchEvent(ev);
     }
 
