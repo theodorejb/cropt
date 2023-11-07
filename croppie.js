@@ -161,14 +161,11 @@ export class Croppie {
     }
 
     bind(options) {
-        var url = options.url;
         var points = options.points || [];
-
         this.data.bound = false;
-        this.data.url = url || this.data.url;
         this.data.boundZoom = typeof(options.zoom) === 'undefined' ? null : options.zoom;
 
-        return loadImage(url).then((img) => {
+        return loadImage(options.url).then((img) => {
             this.#replaceImage(img);
 
             if (!points.length) {
@@ -217,11 +214,10 @@ export class Croppie {
             scale = 1;
         }
 
-        var max = 0;
-        x1 = Math.max(max, x1 / scale);
-        y1 = Math.max(max, y1 / scale);
-        x2 = Math.max(max, x2 / scale);
-        y2 = Math.max(max, y2 / scale);
+        x1 = Math.max(0, x1 / scale);
+        y1 = Math.max(0, y1 / scale);
+        x2 = Math.max(0, x2 / scale);
+        y2 = Math.max(0, y2 / scale);
 
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
@@ -235,13 +231,10 @@ export class Croppie {
             format: 'webp',
             quality: 1
         };
-        var RESULT_FORMATS = ['jpeg', 'webp', 'png'];
 
         var data = this.get(),
             opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
             size = opts.size || 'viewport',
-            format = opts.format,
-            quality = opts.quality,
             vpRect = this.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height;
 
@@ -261,12 +254,8 @@ export class Croppie {
             }
         }
 
-        if (RESULT_FORMATS.indexOf(format) > -1) {
-            data.format = 'image/' + format;
-            data.quality = quality;
-        }
-
-        data.url = this.data.url;
+        data.format = 'image/' + opts.format;
+        data.quality = opts.quality;
 
         return new Promise((resolve, reject) => {
             if (opts.type === 'rawcanvas') {
