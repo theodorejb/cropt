@@ -227,48 +227,43 @@ export class Croppie {
         };
     }
 
-    result(options) {
-        var RESULT_DEFAULTS = {
-            type: 'base64',
-            format: 'webp',
-            quality: 1
-        };
+    /**
+     * Returns a Promise resolving to an HTMLCanvasElement object for the cropped image.
+     * If size is specified, the image will be scaled with its longest side set to size.
+     * @param {number | null} size
+     * @returns {Promise<HTMLCanvasElement>}
+     */
+    toCanvas(size = null) {
+        var vpRect = this.elements.viewport.getBoundingClientRect();
+        var ratio = vpRect.width / vpRect.height;
+        var points = this.getPoints();
+        var width = points.right - points.left;
+        var height = points.bottom - points.top;
 
-        var data = {},
-            opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
-            size = opts.size || 'viewport',
-            vpRect = this.elements.viewport.getBoundingClientRect(),
-            ratio = vpRect.width / vpRect.height;
-
-        if (size === 'viewport') {
-            data.outputWidth = vpRect.width;
-            data.outputHeight = vpRect.height;
-        } else if (typeof size === 'object') {
-            if (size.width && size.height) {
-                data.outputWidth = size.width;
-                data.outputHeight = size.height;
-            } else if (size.width) {
-                data.outputWidth = size.width;
-                data.outputHeight = size.width / ratio;
-            } else if (size.height) {
-                data.outputWidth = size.height * ratio;
-                data.outputHeight = size.height;
+        if (size !== null) {
+            if (ratio > 1) {
+                width = size;
+                height = size / ratio;
+            } else {
+                height = size;
+                width = size * ratio;
             }
         }
 
-        data.format = 'image/' + opts.format;
-        data.quality = opts.quality;
+        return Promise.resolve(this.#getCanvas(points, width, height));
+    }
 
-        return new Promise((resolve, reject) => {
-            if (opts.type === 'rawcanvas') {
-                resolve(this.#getCanvas(data));
-            } else if (opts.type === 'base64') {
-                resolve(this.#getCanvas(data).toDataURL(data.format, data.quality));
-            } else if (opts.type === 'blob') {
-                this.#getCanvas(data).toBlob(resolve, data.format, data.quality);
-            } else {
-                reject('Invalid result type: ' + opts.type);
-            }
+    /**
+     * @param {number | null} size
+     * @param {string} type
+     * @param {number} quality
+     * @returns {Promise<Blob>}
+     */
+    toBlob(size = null, type = "image/webp", quality = 1) {
+        return new Promise((resolve) => {
+            this.toCanvas(size).then((canvas) => {
+                canvas.toBlob(resolve, type, quality);
+            });
         });
     }
 
@@ -352,8 +347,7 @@ export class Croppie {
         }
     }
 
-    #getUnscaledCanvas() {
-        var p = this.getPoints();
+    #getUnscaledCanvas(p) {
         var sWidth = p.right - p.left;
         var sHeight = p.bottom - p.top;
 
@@ -366,13 +360,13 @@ export class Croppie {
         return canvas;
     }
 
-    #getCanvas(data) {
-        var oc = this.#getUnscaledCanvas();
+    #getCanvas(points, width, height) {
+        var oc = this.#getUnscaledCanvas(points);
         var octx = oc.getContext('2d');
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext("2d");
-        canvas.width = data.outputWidth || oc.width;
-        canvas.height = data.outputHeight || oc.height;
+        canvas.width = width;
+        canvas.height = height;
 
         var cur = {
             width: oc.width,

@@ -1,7 +1,7 @@
 import { Croppie } from "../croppie.js";
 
 function popupResult(result) {
-	var html = '<img src="' + result.src + '" class="' + result.viewport + '" />';
+	var html = '<img src="' + result.src + '" class="' + result.viewport + '" style="max-width: 200px" />';
 	Swal.fire({
 		title: '',
 		html: html,
@@ -31,11 +31,8 @@ function demoMain () {
 	});
 
 	var mi = document.querySelector('.js-main-image');
-	mi.addEventListener('click', function (ev) {
-		cropper1.result({
-			type: 'rawcanvas',
-			format: 'png'
-		}).then(function (canvas) {
+	mi.addEventListener('click', function () {
+		cropper1.toCanvas(300).then(function (canvas) {
 			popupResult({
 				src: canvas.toDataURL(),
 				viewport: cropper1.options.viewport.type,
@@ -64,9 +61,9 @@ function demoBasic() {
 
 	var basicResult = document.querySelector('.basic-result');
 	basicResult.addEventListener('click', function () {
-		basic.result({ type: 'base64' }).then(function (resp) {
+		basic.toCanvas(300).then(function (canvas) {
 			popupResult({
-				src: resp
+				src: canvas.toDataURL()
 			});
 		});
 	});
@@ -89,7 +86,7 @@ function demoResizer() {
 		console.log('resize update', ev);
 	});
 	document.querySelector('.resizer-result').addEventListener('click', function (ev) {
-		resize.result({ type: 'blob' }).then(function (blob) {
+		resize.toBlob(300).then(function (blob) {
 			popupResult({
 				src: window.URL.createObjectURL(blob)
 			});
@@ -135,12 +132,9 @@ function demoUpload() {
 	});
 
 	document.querySelector('.upload-result').addEventListener('click', function (ev) {
-		uploadCrop.result({
-			type: 'base64',
-			size: 'viewport'
-		}).then(function (resp) {
+		uploadCrop.toCanvas(300).then(function (canvas) {
 			popupResult({
-				src: resp,
+				src: canvas.toDataURL("image/webp", 1),
 				viewport: uploadCrop.options.viewport.type,
 			});
 		});

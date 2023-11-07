@@ -166,53 +166,42 @@ c.method(args);</code></pre>
                             <strong class="focus">refresh()</strong><em></em>
                             <p>Recalculate points for the croppie image. Necessary if croppie instance was bound to a hidden element.</p>
                         </li>
-                        <li id="result">
-                            <strong class="focus">result({ type, size, format, quality })</strong><em>Promise</em>
-                            <p>Get the resulting crop of the image.</p>
-                            <span class="default">Parameters</span>
-                            <br />
+                        <li id="toCanvas">
+                            <strong class="focus">toCanvas(size)</strong><em>Promise</em>
+                            <p>Returns a Promise resolving to an HTMLCanvasElement object for the cropped image.</p>
                             <ul class="parameter-list">
                                 <li>
-                                    <code class="language-javascript">type</code> The type of result to return defaults to <code class="language-javascript">'base64'</code>
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'base64'</code> returns the cropped image encoded in base64
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'blob'</code> returns a blob of the cropped image
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'rawcanvas'</code> returns the canvas element allowing you to manipulate prior to getting the resulted image
+                                    <code class="language-javascript">size</code> If specified, the image will be scaled with its longest side set to size.
                                 </li>
                                 <li>
-                                    <code class="language-javascript">size</code> The size of the cropped image defaults to <code class="language-javascript">'viewport'</code> 
+                                    <span class="default">Default:</span><code class="language-javascript">null</code> (the image will not be scaled)
                                 </li>
-                                <li class="values">
-                                    <code class="language-javascript">'viewport'</code> the size of the resulting image will be the same width and height as the viewport
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'original'</code> the size of the resulting image will be at the original scale of the image
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">{width, height}</code> an object defining the width and height.  If only one dimension is specified, the other will be calculated using the viewport aspect ratio.
+                            </ul>
+                        </li>
+                        <li id="toBlob">
+                            <strong class="focus">toBlob(size, type, quality)</strong><em>Promise</em>
+                            <p>Returns a Promise resolving to a Blob object for the cropped image.</p>
+                            <ul class="parameter-list">
+                                <li>
+                                    <code class="language-javascript">size</code> If specified, the image will be scaled with its longest side set to size.
                                 </li>
                                 <li>
-                                    <code class="language-javascript">format</code> Indicating the image format.
-                                </li>
-                                <li class="values">
-                                    <span class="default">Default:</span><code class="language-javascript">'webp'</code>
-                                </li>
-                                <li class="values">
-                                    <span class="default">Valid values:</span><code class="language-javascript">'jpeg' | 'png' | 'webp'</code>
+                                    <span class="default">Default:</span><code class="language-javascript">null</code> (the image will not be scaled)
                                 </li>
                                 <li>
-                                    <code class="language-javascript">quality</code> Number between 0 and 1 indicating image quality.
+                                    <code class="language-javascript">type</code> A string containing the image format.
+                                </li>
+                                <li class="values">
+                                    <span class="default">Default:</span><code class="language-javascript">"image/webp"</code>
+                                </li>
+                                <li class="values">
+                                    <span class="default">Valid Values:</span><code class="language-javascript">"image/webp" | "image/png" | "image/jpeg"</code>
+                                </li>
+                                <li>
+                                    <code class="language-javascript">quality</code> A number between 0 and 1 indicating image quality.
                                 </li>
                                 <li class="values">
                                     <span class="default">Default:</span><code class="language-javascript">1</code>
-                                </li>
-                                <li class="values">
-                                    <span class="default">Valid Values:</span><code class="language-javascript">true | false</code>
                                 </li>
                             </ul>
                         </li>
@@ -231,7 +220,7 @@ c.method(args);</code></pre>
                     <h3>Events</h3>
                     <ul>
                         <li id="update">
-                            <strong class="focus">update(croppie)</strong><em>Croppie</em>
+                            <strong class="focus">update(event)</strong>
                             <p>Triggered when a drag or zoom occurs</p>
                             <pre><code class="language-javascript">document.getElementById('my-croppie').addEventListener('update', function (ev) {
     var cropData = ev.detail;
@@ -264,8 +253,9 @@ basic.bind({
     points: [77,469,280,739]
 });
 //on button click
-basic.result({ type: 'base64' }).then(function (resp) {
-    // resp contains data URI which can
+basic.toCanvas(300).then((canvas) => {
+    let src = canvas.toDataURL();
+    // src contains a data URI which can
     // be set as the src of an image element.
 });</code></pre>
                           <div class="actions">
@@ -296,7 +286,7 @@ resize.bind({
     zoom: 0,
 });
 //on button click
-resize.result({ type: 'blob' }).then(function (blob) {
+basic.toBlob(300, "image/jpeg", 0.9).then((blob) => {
     // do something with cropped blob
 });</code></pre>
                                 <div class="actions">
