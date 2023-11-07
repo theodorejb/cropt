@@ -137,7 +137,6 @@ export class Croppie {
             type: 'square'
         },
         customClass: '',
-        showZoomer: true,
         zoomerInputClass: 'cr-slider',
         mouseWheelZoom: true,
         enableKeyMovement: true,
@@ -558,7 +557,6 @@ export class Croppie {
         zoomer.type = 'range';
         zoomer.step = '0.0001';
         zoomer.value = '1';
-        zoomer.style.display = this.options.showZoomer ? '' : 'none';
         zoomer.setAttribute('aria-label', 'zoom');
 
         this.element.appendChild(wrap);
