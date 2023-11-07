@@ -207,7 +207,6 @@ export class Croppie {
 
             this.data.points = points.map((p) => parseFloat(p));
             this.#updatePropertiesFromImage();
-            this.#triggerUpdate();
         });
     }
 
@@ -281,7 +280,6 @@ export class Croppie {
 
     refresh() {
         this.#updatePropertiesFromImage();
-        this.#triggerUpdate();
     }
 
     /**
@@ -483,8 +481,7 @@ export class Croppie {
 
             this.#updateOverlay();
             document.body.style.userSelect = '';
-            this.#updateCenterPoint();            
-            this.#triggerUpdate();
+            this.#updateCenterPoint();
             originalDistance = 0;
         };
 
@@ -540,7 +537,6 @@ export class Croppie {
             window.removeEventListener('touchend', mouseUp);
             document.body.style.userSelect = '';
             this.#updateCenterPoint();
-            this.#triggerUpdate();
             originalDistance = 0;
         }
 
@@ -689,7 +685,6 @@ export class Croppie {
             this.#updateOverlay();
             this.#updateZoomLimits();
             this.#updateCenterPoint();
-            this.#triggerUpdate();
             originalY = pageY;
             originalX = pageX;
         };
@@ -861,8 +856,6 @@ export class Croppie {
         (debounce(() => {
             this.#updateOverlay();
         }, 500))();
-
-        this.#triggerUpdate();
     }
 
     /**
@@ -875,15 +868,6 @@ export class Croppie {
             this.elements.preview = img; // if the img is attached to the DOM, they're not using the canvas
         }
         this.elements.img = img;
-    }
-
-    #triggerUpdate() {
-        if (!this.#isVisible()) {
-            return;
-        }
-
-        var ev = new CustomEvent('update', { detail: this.getPoints() });
-        this.element.dispatchEvent(ev);
     }
 
     #isVisible() {

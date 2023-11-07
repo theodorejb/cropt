@@ -26,10 +26,6 @@ function demoMain () {
 
 	cropper1.bind("demo/demo-1.jpg");
 
-	mc.addEventListener('update', function (ev) {
-		console.log('main update', ev);
-	});
-
 	var mi = document.querySelector('.js-main-image');
 	mi.addEventListener('click', function () {
 		cropper1.toCanvas(300).then(function (canvas) {
@@ -75,10 +71,9 @@ function demoResizer() {
 		enableResize: true,
 		mouseWheelZoom: 'ctrl'
 	});
+
 	resize.bind('demo/demo-2.jpg', 0);
-	vEl.addEventListener('update', function (ev) {
-		console.log('resize update', ev);
-	});
+
 	document.querySelector('.resizer-result').addEventListener('click', function (ev) {
 		resize.toBlob(300).then(function (blob) {
 			popupResult({
