@@ -164,10 +164,9 @@ export class Croppie {
      * Bind an image from an src string. Returns a Promise which resolves when the image has been loaded and state is initialized.
      * @param {string} src 
      * @param {number | null} zoom 
-     * @param {[number, number, number, number] | []} points
      * @returns {Promise<void>}
      */
-    bind(src, zoom = null, points = []) {
+    bind(src, zoom = null) {
         if (!src) {
             throw new Error('src cannot be empty');
         }
@@ -177,7 +176,6 @@ export class Croppie {
 
         return loadImage(src).then((img) => {
             this.#replaceImage(img);
-            this.data.points = points;
             this.#updatePropertiesFromImage();
         });
     }
@@ -873,19 +871,14 @@ export class Croppie {
         if (this.options.enableZoom) {
             this.#updateZoomLimits(true);
         } else {
-            this._currentZoom = 1;
+            this._currentZoom = this.data.boundZoom ?? 1;
         }
 
         transformReset.scale = this._currentZoom;
         cssReset.transform = transformReset.toString();
         css(this.elements.preview, cssReset);
 
-        if (this.data.points.length) {
-            this.#bindPoints(this.data.points);
-        } else {
-            this.#centerImage();
-        }
-
+        this.#centerImage();
         this.#updateCenterPoint();
         this.#updateOverlay();
     }
@@ -944,33 +937,6 @@ export class Croppie {
         } else if (scale < zoomer.min || scale > zoomer.max) {
             this.setZoom(scale < zoomer.min ? zoomer.min : zoomer.max);
         }
-    }
-
-    #bindPoints(points) {
-        if (points.length !== 4) {
-            throw "Croppie - Invalid number of points supplied: " + points;
-        }
-
-        var pointsWidth = points[2] - points[0],
-            vpData = this.elements.viewport.getBoundingClientRect(),
-            boundRect = this.elements.boundary.getBoundingClientRect(),
-            vpOffset = {
-                left: vpData.left - boundRect.left,
-                top: vpData.top - boundRect.top
-            },
-            scale = vpData.width / pointsWidth,
-            originTop = points[1],
-            originLeft = points[0],
-            transformTop = (-1 * points[1]) + vpOffset.top,
-            transformLeft = (-1 * points[0]) + vpOffset.left;
-
-        css(this.elements.preview, {
-            transform: new Transform(transformLeft, transformTop, scale).toString(),
-            transformOrigin: originLeft + 'px ' + originTop + 'px',
-        });
-
-        this.#setZoomerVal(scale);
-        this._currentZoom = scale;
     }
 
     #centerImage() {

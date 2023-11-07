@@ -50,7 +50,7 @@ function demoBasic() {
 		},
 	});
 
-	basic.bind('demo/cat.jpg', null, [77, 469, 280, 739]);
+	basic.bind('demo/cat.jpg', 0.5);
 
 	var basicResult = document.querySelector('.basic-result');
 	basicResult.addEventListener('click', function () {
