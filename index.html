@@ -13,10 +13,16 @@
         <meta property="og:description" content="Croppie is an easy to use javascript image cropper.">
         <meta property="og:image" content="https://foliotek.github.io/Croppie/demo/hero.png">
 
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,700' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" type="text/css" href="demo/prism.css" />
-        <link rel="stylesheet" type="text/css" href="croppie.css" />
-        <link rel="stylesheet" type="text/css" href="demo/demo.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,700">
+        <link rel="stylesheet" href="croppie.css" />
+        <link rel="stylesheet" href="demo/demo.css" />
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" media="(prefers-color-scheme: dark)">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="icon" href="https://foliotek.github.io/favico-64.png" />
     </head>
     <body>
@@ -46,28 +52,15 @@
                 </div>
             </div>
         </section>
-        <section class="simple">
-            <div class="section-header"><h2>The Basics</h2></div>
-            <div class="container">
-                <pre class="language-html"><code class="language-html">&lt;div class="demo"&gt;&lt;/div&gt;
-&lt;script&gt;
-    var c = new Croppie(document.querySelector('.demo'));
-    c.bind({ url: 'demo/demo-1.jpg' });
-&lt;/script&gt;
-</code></pre>
-            </div>
-        </section>
         <section class="installation">
             <a id="install" name="install"></a>
             <div class="section-header"><h2>Installation</h2></div>
             <div class="container">
                 <p><strong>NPM:</strong></p>
-                <pre class="language-javascript" style="width: 225px;"><code class="language-javascript">npm install croppie</code></pre>
-                <p><strong>Download:</strong></p>
-                <p><a href="https://github.com/Foliotek/Croppie/releases">Source</a></p>
+                <pre><code class="language-bash">npm install croppie</code></pre>
                 <hr />
                 <p><strong>Then add the following elements to your page:</strong></p>
-                <pre class="language-html"><code class="language-html">&lt;link rel="stylesheet" href="croppie.css" /&gt;
+                <pre><code class="language-html">&lt;link rel="stylesheet" href="croppie.css" /&gt;
 &lt;script src="croppie.js"&gt;&lt;/script&gt;</code></pre>
             </div>
         </section>
@@ -76,10 +69,11 @@
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
                 <p>You can initialize Croppie with the following code:</p>
-                
-              <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
-// call a method
-c.method(args);</code></pre>
+                <pre><code class="language-html">&lt;div id="demo"&gt;&lt;/div&gt;
+&lt;script&gt;
+    var c = new Croppie(document.getElementById('demo'), options);
+    c.bind('demo/demo-1.jpg');
+&lt;/script&gt;</code></pre>
             </div>
         </section>
 
@@ -90,36 +84,14 @@ c.method(args);</code></pre>
                 <section>
                     <h3>Options</h3>
                     <ul>
-                        <li id="boundary">
-                            <strong class="focus">boundary</strong><em>object</em>
-                            <p>The outer container of the cropper</p>
-                            <span class="default">Default</span>
-                            <code class="language-html">will default to the size of the container</code>
-                        </li>
                         <li id="customClass">
                             <strong class="focus">customClass</strong><em>string</em>
                             <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
                             <span class="default">Default</span><code class="language-javascript">''</code>
                         </li>
-                        <li id="enableResize">
-                            <strong class="focus">enableResize</strong><em>boolean</em>
-                            <p>Enable or disable support for resizing the viewport area.</p>
-                            <span class="default">Default</span>
-                            <code class="language-javascript">false</code>
-                        </li>
-                        <li id="enableZoom">
-                            <strong class="focus">enableZoom</strong><em>boolean</em>
-                            <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
-                            <span class="default">Default</span><code class="language-javascript">true</code>
-                        </li>
                         <li id="mouseWheelZoom">
                             <strong class="focus">mouseWheelZoom</strong><em>bool/string</em>
                             <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance. If <code class="language-javascript">'ctrl'</code> is passed mouse wheel will only work while control keyboard is pressed</p>
-                            <span class="default">Default</span><code class="language-javascript">true</code>
-                        </li>
-                        <li id="showZoomer">
-                            <strong class="focus">showZoomer</strong><em>boolean</em>
-                            <p>Hide or Show the zoom slider</p>
                             <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li id="viewport">
@@ -127,8 +99,8 @@ c.method(args);</code></pre>
                             <p>The inner container of the coppie.  The visible part of the image</p>
                             <span class="default">Default</span>
                             <code class="language-javascript">{ 
-                                width: 100,
-                                height: 100,
+                                width: 200,
+                                height: 200,
                                 type: 'square'
                             }</code>
                             <br /><br />
@@ -140,18 +112,20 @@ c.method(args);</code></pre>
                     <h3>Methods</h3>
                     <ul>
                         <li id="get">
-                            <strong class="focus">get()</strong><em>object</em>
-                            <p>Get the crop points, and the zoom of the image.</p>
+                            <strong class="focus">getPoints()</strong><em>object</em>
+                            <p>Get the crop points.</p>
                         </li>
                         <li id="bind">
-                            <strong class="focus">bind({ url, points, zoom })</strong><em>Promise</em>
-                            <p>Bind an image to the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
+                            <strong class="focus">bind(src, zoom)</strong><em>Promise</em>
+                            <p>Bind an image from an src string. Returns a Promise which resolves when the image has been loaded and state is initialized.</p>
                             <span class="default">Parameters</span>
                             <br />
                             <ul class="parameter-list">
-                                <li><code class="language-javascript">url</code> URL to image</li>
-                                <li><code class="language-javascript">points</code> Array of points that translate into <code class="language-javascript">[topLeftX, topLeftY, bottomRightX, bottomRightY]</code></li>
-                                <li><code class="language-javascript">zoom</code> Apply zoom after image has been bound </li>
+                                <li><code class="language-javascript">src</code> URL to image</li>
+                                <li><code class="language-javascript">zoom</code> A number between 0 and 1, or null</li>
+                                <li>
+                                    <span class="default">Default:</span><code class="language-javascript">null</code>
+                                </li>
                             </ul>
                         </li>
                         <li id="destroy">
@@ -162,53 +136,42 @@ c.method(args);</code></pre>
                             <strong class="focus">refresh()</strong><em></em>
                             <p>Recalculate points for the croppie image. Necessary if croppie instance was bound to a hidden element.</p>
                         </li>
-                        <li id="result">
-                            <strong class="focus">result({ type, size, format, quality })</strong><em>Promise</em>
-                            <p>Get the resulting crop of the image.</p>
-                            <span class="default">Parameters</span>
-                            <br />
+                        <li id="toCanvas">
+                            <strong class="focus">toCanvas(size)</strong><em>Promise</em>
+                            <p>Returns a Promise resolving to an HTMLCanvasElement object for the cropped image.</p>
                             <ul class="parameter-list">
                                 <li>
-                                    <code class="language-javascript">type</code> The type of result to return defaults to <code class="language-javascript">'base64'</code>
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'base64'</code> returns the cropped image encoded in base64
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'blob'</code> returns a blob of the cropped image
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'rawcanvas'</code> returns the canvas element allowing you to manipulate prior to getting the resulted image
+                                    <code class="language-javascript">size</code> If specified, the image will be scaled with its longest side set to size.
                                 </li>
                                 <li>
-                                    <code class="language-javascript">size</code> The size of the cropped image defaults to <code class="language-javascript">'viewport'</code> 
+                                    <span class="default">Default:</span><code class="language-javascript">null</code> (the image will not be scaled)
                                 </li>
-                                <li class="values">
-                                    <code class="language-javascript">'viewport'</code> the size of the resulting image will be the same width and height as the viewport
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">'original'</code> the size of the resulting image will be at the original scale of the image
-                                </li>
-                                <li class="values">
-                                    <code class="language-javascript">{width, height}</code> an object defining the width and height.  If only one dimension is specified, the other will be calculated using the viewport aspect ratio.
+                            </ul>
+                        </li>
+                        <li id="toBlob">
+                            <strong class="focus">toBlob(size, type, quality)</strong><em>Promise</em>
+                            <p>Returns a Promise resolving to a Blob object for the cropped image.</p>
+                            <ul class="parameter-list">
+                                <li>
+                                    <code class="language-javascript">size</code> If specified, the image will be scaled with its longest side set to size.
                                 </li>
                                 <li>
-                                    <code class="language-javascript">format</code> Indicating the image format.
-                                </li>
-                                <li class="values">
-                                    <span class="default">Default:</span><code class="language-javascript">'webp'</code>
-                                </li>
-                                <li class="values">
-                                    <span class="default">Valid values:</span><code class="language-javascript">'jpeg' | 'png' | 'webp'</code>
+                                    <span class="default">Default:</span><code class="language-javascript">null</code> (the image will not be scaled)
                                 </li>
                                 <li>
-                                    <code class="language-javascript">quality</code> Number between 0 and 1 indicating image quality.
+                                    <code class="language-javascript">type</code> A string containing the image format.
+                                </li>
+                                <li class="values">
+                                    <span class="default">Default:</span><code class="language-javascript">"image/webp"</code>
+                                </li>
+                                <li class="values">
+                                    <span class="default">Valid Values:</span><code class="language-javascript">"image/webp" | "image/png" | "image/jpeg"</code>
+                                </li>
+                                <li>
+                                    <code class="language-javascript">quality</code> A number between 0 and 1 indicating image quality.
                                 </li>
                                 <li class="values">
                                     <span class="default">Default:</span><code class="language-javascript">1</code>
-                                </li>
-                                <li class="values">
-                                    <span class="default">Valid Values:</span><code class="language-javascript">true | false</code>
                                 </li>
                             </ul>
                         </li>
@@ -220,18 +183,6 @@ c.method(args);</code></pre>
                                     <code class="language-javascript">value</code> a floating point to scale the image within the croppie.  Must be between a min and max value set by croppie.
                                 </li>
                             </ul>
-                        </li>
-                    </ul>
-                </section>
-                <section>
-                    <h3>Events</h3>
-                    <ul>
-                        <li id="update">
-                            <strong class="focus">update(croppie)</strong><em>Croppie</em>
-                            <p>Triggered when a drag or zoom occurs</p>
-                            <pre class="language-javascript"><code class="language-javascript">document.getElementById('my-croppie').addEventListener('update', function (ev) {
-    var cropData = ev.detail;
-});</code></pre>
                         </li>
                     </ul>
                 </section>
@@ -248,20 +199,18 @@ c.method(args);</code></pre>
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Basic Example</strong>
-                          <pre class="language-javascript"><code class="language-javascript">var basicEl = document.getElementById('demo-basic');
+                          <pre><code class="language-javascript">var basicEl = document.getElementById('demo-basic');
 var basic = new Croppie(basicEl, {
     viewport: {
         width: 150,
         height: 200
     }
 });
-basic.bind({
-    url: 'demo/cat.jpg',
-    points: [77,469,280,739]
-});
+basic.bind('demo/cat.jpg', 0.5);
 //on button click
-basic.result({ type: 'base64' }).then(function (resp) {
-    // resp contains data URI which can
+basic.toCanvas(300).then((canvas) => {
+    let src = canvas.toDataURL();
+    // src contains a data URI which can
     // be set as the src of an image element.
 });</code></pre>
                           <div class="actions">
@@ -274,53 +223,16 @@ basic.result({ type: 'base64' }).then(function (resp) {
                     </div>
                 </div>
             </div>
-                <div class="demo-wrap">
-                    <div class="container">
-                        <div class="grid">
-                            <div class="col-1-2">
-                                <strong>Resizer Example</strong>
-                                <pre class="language-javascript"><code class="language-javascript">var el = document.getElementById('resizer-demo');
-var resize = new Croppie(el, {
-    viewport: { width: 150, height: 150 },
-    boundary: { width: 300, height: 300 },
-    showZoomer: false,
-    enableResize: true,
-    mouseWheelZoom: 'ctrl'
-});
-resize.bind({
-    url: 'demo/demo-2.jpg',
-    zoom: 0,
-});
-//on button click
-resize.result({ type: 'blob' }).then(function (blob) {
-    // do something with cropped blob
-});</code></pre>
-                                <div class="actions">
-                                    <button class="resizer-result">Result</button>
-                                </div>
-                            </div>
-                            <div class="col-1-2">
-                                <div id="resizer-demo"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="demo-wrap upload-demo">
                     <div class="container">
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Upload Example</strong>
-                            <pre class="language-javascript"><code class="language-javascript">var uploadEl = document.getElementById('upload-demo');
+                            <pre><code class="language-javascript">var uploadEl = document.getElementById('upload-demo');
 var uploadCrop = new Croppie(uploadEl, {
     viewport: {
-        width: 200,
-        height: 200,
         type: 'circle'
     },
-    boundary: {
-        width: 300,
-        height: 300
-    }
 });</code></pre>
                             <div class="actions">
                                 <a class="btn file-btn">
@@ -348,9 +260,10 @@ var uploadCrop = new Croppie(uploadEl, {
                             <strong>Hidden Example</strong>
                             <p>When binding a croppie element that isn't visible, i.e., in a modal - you'll need to call refresh on your croppie instance, to indicate to croppie that the position has changed and it needs to recalculate its points.</p>
 
-                            <pre class="language-javascript"><code class="language-javascript">hiddenCrop.refresh();</code></pre>
+                            <pre><code class="language-javascript">hiddenCrop.refresh();</code></pre>
                             <div class="actions">
                                 <button class="toggle-hidden">Toggle Croppie</button>
+                                <button class="hidden-result">Result</button>
                             </div>
                         </div>
                         <div class="col-1-2">
@@ -374,10 +287,10 @@ var uploadCrop = new Croppie(uploadEl, {
                     <a id="visibility" name="visibility"></a>
                     <h3>Visibility and Binding</h3>
                     <p>Croppie is dependent on its container being visible when the <a href="#bind">bind</a> method is called.  This can be an issue when your croppie component is inside a modal that isn't shown. Let's take the bootstrap modal for example..</p>
-                    <pre class="language-javascript"><code class="language-javascript">var cropEl = document.getElementById('my-croppie');
+                    <pre><code class="language-javascript">var cropEl = document.getElementById('my-croppie');
 var myCroppie = new Croppie(cropEl, opts);
 document.getElementById('my-modal').addEventListener('shown.bs.modal', function () {
-    myCroppie.bind(bindOpts);
+    myCroppie.bind(url);
 });</code></pre>
                     <p>If you are having issues getting the correct crop result, and your croppie instance is shown inside of a modal, try taking your croppie out of the modal and see if your issues persist.  If they don't, then make sure that your bind method is called after the modal is done animating.</p>
                 </article>
@@ -421,12 +334,13 @@ document.getElementById('my-modal').addEventListener('shown.bs.modal', function 
             Copyright &copy; <span id="year">2017</span> | Foliotek
         </footer>
 
-        <script src="demo/prism.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script type="module" src="demo/demo.js"></script>
         <script>
+            hljs.configure({
+                cssSelector: "code"
+            });
+            hljs.highlightAll();
             document.getElementById('year').innerHTML = (new Date).getFullYear();
         </script>
-        <a href="https://github.com/foliotek/croppie" class="github-corner"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); -webkit-transform: sale(-1, 1);"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style></a>
     </body>
 </html>
