@@ -58,7 +58,7 @@
                 <pre><code class="language-html">&lt;div class="demo"&gt;&lt;/div&gt;
 &lt;script&gt;
     var c = new Croppie(document.querySelector('.demo'));
-    c.bind({ url: 'demo/demo-1.jpg' });
+    c.bind('demo/demo-1.jpg');
 &lt;/script&gt;
 </code></pre>
             </div>
@@ -148,14 +148,20 @@ c.method(args);</code></pre>
                             <p>Get the crop points.</p>
                         </li>
                         <li id="bind">
-                            <strong class="focus">bind({ url, points, zoom })</strong><em>Promise</em>
-                            <p>Bind an image to the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
+                            <strong class="focus">bind(src, zoom, points)</strong><em>Promise</em>
+                            <p>Bind an image to the croppie. Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
                             <span class="default">Parameters</span>
                             <br />
                             <ul class="parameter-list">
-                                <li><code class="language-javascript">url</code> URL to image</li>
+                                <li><code class="language-javascript">src</code> URL to image</li>
+                                <li><code class="language-javascript">zoom</code> Apply zoom after image has been bound</li>
+                                <li>
+                                    <span class="default">Default:</span><code class="language-javascript">null</code>
+                                </li>
                                 <li><code class="language-javascript">points</code> Array of points that translate into <code class="language-javascript">[topLeftX, topLeftY, bottomRightX, bottomRightY]</code></li>
-                                <li><code class="language-javascript">zoom</code> Apply zoom after image has been bound </li>
+                                <li>
+                                    <span class="default">Default:</span><code class="language-javascript">[]</code>
+                                </li>
                             </ul>
                         </li>
                         <li id="destroy">
@@ -248,10 +254,7 @@ var basic = new Croppie(basicEl, {
         height: 200
     }
 });
-basic.bind({
-    url: 'demo/cat.jpg',
-    points: [77,469,280,739]
-});
+basic.bind('demo/cat.jpg', null, [77, 469, 280, 739]);
 //on button click
 basic.toCanvas(300).then((canvas) => {
     let src = canvas.toDataURL();
@@ -281,10 +284,7 @@ var resize = new Croppie(el, {
     enableResize: true,
     mouseWheelZoom: 'ctrl'
 });
-resize.bind({
-    url: 'demo/demo-2.jpg',
-    zoom: 0,
-});
+resize.bind('demo/demo-2.jpg', 0);
 //on button click
 basic.toBlob(300, "image/jpeg", 0.9).then((blob) => {
     // do something with cropped blob
@@ -345,6 +345,7 @@ var uploadCrop = new Croppie(uploadEl, {
                             <pre><code class="language-javascript">hiddenCrop.refresh();</code></pre>
                             <div class="actions">
                                 <button class="toggle-hidden">Toggle Croppie</button>
+                                <button class="hidden-result">Result</button>
                             </div>
                         </div>
                         <div class="col-1-2">
@@ -371,7 +372,7 @@ var uploadCrop = new Croppie(uploadEl, {
                     <pre><code class="language-javascript">var cropEl = document.getElementById('my-croppie');
 var myCroppie = new Croppie(cropEl, opts);
 document.getElementById('my-modal').addEventListener('shown.bs.modal', function () {
-    myCroppie.bind(bindOpts);
+    myCroppie.bind(url);
 });</code></pre>
                     <p>If you are having issues getting the correct crop result, and your croppie instance is shown inside of a modal, try taking your croppie out of the modal and see if your issues persist.  If they don't, then make sure that your bind method is called after the modal is done animating.</p>
                 </article>

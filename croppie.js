@@ -108,9 +108,11 @@ function fix(v, decimalPoints) {
     return parseFloat(v).toFixed(decimalPoints || 0);
 }
 
+/**
+ * @param {string} src 
+ * @returns {Promise<HTMLImageElement>}
+ */
 function loadImage(src) {
-    if (!src) { throw 'Source image missing'; }
-
     var img = new Image();
 
     return new Promise(function (resolve, reject) {
@@ -122,6 +124,9 @@ function loadImage(src) {
     });
 }
 
+/**
+ * @param {HTMLImageElement} img
+ */
 function naturalImageDimensions(img) {
     return {
         width: img.naturalWidth,
@@ -160,12 +165,22 @@ export class Croppie {
         this.#create();
     }
 
-    bind(options) {
-        var points = options.points || [];
-        this.data.bound = false;
-        this.data.boundZoom = typeof(options.zoom) === 'undefined' ? null : options.zoom;
+    /**
+     * Bind an image from an src string. Returns a Promise which resolves when the image has been loaded and state is initialized.
+     * @param {string} src 
+     * @param {number | null} zoom 
+     * @param {[number, number, number, number] | []} points
+     * @returns {Promise<void>}
+     */
+    bind(src, zoom = null, points = []) {
+        if (!src) {
+            throw new Error('src cannot be empty');
+        }
 
-        return loadImage(options.url).then((img) => {
+        this.data.bound = false;
+        this.data.boundZoom = zoom;
+
+        return loadImage(src).then((img) => {
             this.#replaceImage(img);
 
             if (!points.length) {
@@ -190,10 +205,7 @@ export class Croppie {
                 this.data.points = [x0, y0, x1, y1];
             }
 
-            this.data.points = points.map(function (p) {
-                return parseFloat(p);
-            });
-
+            this.data.points = points.map((p) => parseFloat(p));
             this.#updatePropertiesFromImage();
             this.#triggerUpdate();
         });
@@ -272,8 +284,11 @@ export class Croppie {
         this.#triggerUpdate();
     }
 
-    setZoom(v) {
-        this.#setZoomerVal(v);
+    /**
+     * @param {number} value
+     */
+    setZoom(value) {
+        this.#setZoomerVal(value);
         dispatchChange(this.elements.zoomer);
     }
 
@@ -304,10 +319,12 @@ export class Croppie {
         var bw = this.options.boundary.width;
         var bh = this.options.boundary.height;
 
-        css(boundary, {
-            width: (bw + (isNaN(bw) ? '' : 'px')),
-            height: (bh + (isNaN(bh) ? '' : 'px'))
-        });
+        if (bw) {
+            css(boundary, {width: `${bw}px`});
+        }
+        if (bh) {
+            css(boundary, {height: `${bh}px`});
+        }
 
         viewport.setAttribute('tabindex', 0);
         viewport.classList.add('cr-viewport');
@@ -534,14 +551,10 @@ export class Croppie {
                 DOWN_ARROW  = 40;
 
             if (ev.shiftKey && (ev.keyCode === UP_ARROW || ev.keyCode === DOWN_ARROW)) {
-                var zoom;
-                if (ev.keyCode === UP_ARROW) {
-                    zoom = parseFloat(this.elements.zoomer.value) + parseFloat(this.elements.zoomer.step)
-                }
-                else {
-                    zoom = parseFloat(this.elements.zoomer.value) - parseFloat(this.elements.zoomer.step)
-                }
-                this.setZoom(zoom);
+                let zoomVal = parseFloat(this.elements.zoomer.value);
+                let stepVal = parseFloat(this.elements.zoomer.step);
+                stepVal = (ev.keyCode === UP_ARROW) ? stepVal : (stepVal * -1);
+                this.setZoom(zoomVal + stepVal);
             } else if (this.options.enableKeyMovement && (ev.keyCode >= 37 && ev.keyCode <= 40)) {
                 ev.preventDefault();
                 var movement = parseKeyDown(ev.keyCode);
@@ -789,6 +802,9 @@ export class Croppie {
         }
     }
 
+    /**
+     * @param {number} val
+     */
     #setZoomerVal(val) {
         if (this.options.enableZoom) {
             var z = this.elements.zoomer;
@@ -849,6 +865,9 @@ export class Croppie {
         this.#triggerUpdate();
     }
 
+    /**
+     * @param {HTMLImageElement} img
+     */
     #replaceImage(img) {
         if (this.elements.img.parentNode) {
             Array.prototype.forEach.call(this.elements.img.classList, function(c) { img.classList.add(c); });

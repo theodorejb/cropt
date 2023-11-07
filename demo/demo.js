@@ -24,7 +24,7 @@ function demoMain () {
 		},
 	});
 
-	cropper1.bind({ url: "demo/demo-1.jpg" });
+	cropper1.bind("demo/demo-1.jpg");
 
 	mc.addEventListener('update', function (ev) {
 		console.log('main update', ev);
@@ -54,10 +54,7 @@ function demoBasic() {
 		},
 	});
 
-	basic.bind({
-		url: 'demo/cat.jpg',
-		points: [77,469,280,739]
-	});
+	basic.bind('demo/cat.jpg', null, [77, 469, 280, 739]);
 
 	var basicResult = document.querySelector('.basic-result');
 	basicResult.addEventListener('click', function () {
@@ -78,10 +75,7 @@ function demoResizer() {
 		enableResize: true,
 		mouseWheelZoom: 'ctrl'
 	});
-	resize.bind({
-		url: 'demo/demo-2.jpg',
-		zoom: 0
-	});
+	resize.bind('demo/demo-2.jpg', 0);
 	vEl.addEventListener('update', function (ev) {
 		console.log('resize update', ev);
 	});
@@ -115,9 +109,7 @@ function demoUpload() {
 			reader.onload = function (e) {
 				document.querySelector('.upload-demo').classList.add('ready');
 
-				uploadCrop.bind({
-					url: e.target.result
-				}).then(function () {
+				uploadCrop.bind(e.target.result).then(function () {
 					console.log('uploadCrop bind complete');
 				});
 			}
@@ -143,6 +135,8 @@ function demoUpload() {
 
 function demoHidden() {
 	var hidEl = document.getElementById('hidden-demo');
+	var hiddenResult = document.querySelector('.hidden-result');
+
 	var hiddenCrop = new Croppie(hidEl, {
 		viewport: {
 			width: 175,
@@ -154,12 +148,23 @@ function demoHidden() {
 			height: 200
 		}
 	});
-	hiddenCrop.bind({
-		url: 'demo/demo-3.jpg'
+
+	hiddenCrop.bind('demo/demo-3.jpg');	
+
+	hiddenResult.addEventListener('click', function (ev) {
+		hiddenCrop.toCanvas(300).then(function (canvas) {
+			popupResult({
+				src: canvas.toDataURL("image/webp", 1),
+				viewport: hiddenCrop.options.viewport.type,
+			});
+		});
 	});
+
+	toggle(hiddenResult);
 
 	document.querySelector('.toggle-hidden').addEventListener('click', function () {
 		toggle(hidEl);
+		toggle(hiddenResult);
 		hiddenCrop.refresh();
 	});
 }
