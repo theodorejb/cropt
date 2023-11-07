@@ -139,7 +139,6 @@ export class Croppie {
         customClass: '',
         zoomerInputClass: 'cr-slider',
         mouseWheelZoom: true,
-        enableKeyMovement: true,
     };
 
     constructor(element, opts) {
@@ -254,6 +253,7 @@ export class Croppie {
     }
 
     destroy() {
+        document.removeEventListener("keydown", this.keyDownHandler);
         this.element.removeChild(this.elements.boundary);
         this.element.classList.remove('croppie-container');
         this.element.removeChild(this.elements.zoomerWrap);
@@ -416,19 +416,6 @@ export class Croppie {
             this.elements.boundary.setAttribute('aria-dropeffect', isDragging ? 'move': 'none');
         };
 
-        let keyMove = (movement, transform) => {
-            assignTransformCoordinates(movement[0], movement[1]);
-
-            css(this.elements.preview, {
-                transform: transform.toString(),
-            });
-
-            this.#updateOverlay();
-            document.body.style.userSelect = '';
-            this.#updateCenterPoint();
-            originalDistance = 0;
-        };
-
         let mouseMove = (ev) => {
             ev.preventDefault();
             var pageX = ev.pageX,
@@ -483,38 +470,47 @@ export class Croppie {
             originalDistance = 0;
         }
 
+        /**
+         * @param {KeyboardEvent} ev
+         */
         let keyDown = (ev) => {
-            var LEFT_ARROW  = 37,
-                UP_ARROW    = 38,
-                RIGHT_ARROW = 39,
-                DOWN_ARROW  = 40;
+            if (document.activeElement !== this.elements.viewport) {
+                return;
+            }
 
-            if (ev.shiftKey && (ev.keyCode === UP_ARROW || ev.keyCode === DOWN_ARROW)) {
-                let zoomVal = parseFloat(this.elements.zoomer.value);
-                let stepVal = parseFloat(this.elements.zoomer.step);
-                stepVal = (ev.keyCode === UP_ARROW) ? stepVal : (stepVal * -1);
-                this.setZoom(zoomVal + stepVal);
-            } else if (this.options.enableKeyMovement && (ev.keyCode >= 37 && ev.keyCode <= 40)) {
+            if (ev.shiftKey && (ev.key === "ArrowUp" || ev.key === "ArrowDown")) {
                 ev.preventDefault();
-                var movement = parseKeyDown(ev.keyCode);
+                let zoomVal = parseFloat(this.elements.zoomer.value);
+                let stepVal = (ev.key === "ArrowUp") ? 0.01 : -0.01;
+                this.setZoom(zoomVal + stepVal);
+            } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)) {
+                ev.preventDefault();
+                let [deltaX, deltaY] = getMovement(ev.key);
 
                 transform = Transform.parse(this.elements.preview);
                 document.body.style.userSelect = 'none';
                 vpRect = this.elements.viewport.getBoundingClientRect();
+                assignTransformCoordinates(deltaX, deltaY);
 
-                keyMove(movement, transform);
+                css(this.elements.preview, {
+                    transform: transform.toString(),
+                });
+
+                this.#updateOverlay();
+                document.body.style.userSelect = '';
+                this.#updateCenterPoint();
+                originalDistance = 0;
             }
 
-            function parseKeyDown(key) {
-                switch (key) {
-                    case LEFT_ARROW:
-                        return [1, 0];
-                    case UP_ARROW:
-                        return [0, 1];
-                    case RIGHT_ARROW:
-                        return [-1, 0];
-                    case DOWN_ARROW:
-                        return [0, -1];
+            function getMovement(key) {
+                if (key === "ArrowLeft") {
+                    return [2, 0];
+                } else if (key === "ArrowUp") {
+                    return [0, 2];
+                } else if (key === "ArrowRight") {
+                    return [-2, 0];
+                } else if (key === "ArrowDown") {
+                    return [0, -2];
                 }
             }
         };
@@ -544,7 +540,8 @@ export class Croppie {
         };
 
         this.elements.overlay.addEventListener('mousedown', mouseDown);
-        this.elements.viewport.addEventListener('keydown', keyDown);
+        document.addEventListener('keydown', keyDown);
+        this.keyDownHandler = keyDown;
         this.elements.overlay.addEventListener('touchstart', mouseDown);
     }
 
@@ -555,7 +552,7 @@ export class Croppie {
         wrap.classList.add('cr-slider-wrap');
         zoomer.classList.add(this.options.zoomerInputClass);
         zoomer.type = 'range';
-        zoomer.step = '0.0001';
+        zoomer.step = '0.001';
         zoomer.value = '1';
         zoomer.setAttribute('aria-label', 'zoom');
 
@@ -607,13 +604,12 @@ export class Croppie {
         var zMin = parseFloat(z.min);
         var zMax = parseFloat(z.max);
 
-        z.value = Math.max(zMin, Math.min(zMax, fix(val, 4))).toString();
+        z.value = Math.max(zMin, Math.min(zMax, fix(val, 3))).toString();
     }
 
     #onZoom(ui) {
-        var transform = ui ? ui.transform : Transform.parse(this.elements.preview),
-            vpRect = ui ? ui.viewportRect : this.elements.viewport.getBoundingClientRect(),
-            origin = ui ? ui.origin : new TransformOrigin(this.elements.preview);
+        var transform = ui.transform;
+        var origin = ui.origin;
 
         let applyCss = () => {
             css(this.elements.preview, {
@@ -622,11 +618,11 @@ export class Croppie {
             });
         };
 
-        this._currentZoom = ui ? ui.value : this._currentZoom;
+        this._currentZoom = ui.value;
         transform.scale = this._currentZoom;
         applyCss();
 
-        var boundaries = this.#getVirtualBoundaries(vpRect),
+        var boundaries = this.#getVirtualBoundaries(ui.viewportRect),
             transBoundaries = boundaries.translate,
             oBoundaries = boundaries.origin;
 
@@ -751,8 +747,8 @@ export class Croppie {
             maxZoom += minZoom;
         }
 
-        zoomer.min = fix(minZoom, 4);
-        zoomer.max = fix(maxZoom, 4);
+        zoomer.min = fix(minZoom, 3);
+        zoomer.max = fix(maxZoom, 3);
 
         defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
         initialZoom = this.data.boundZoom !== null ? this.data.boundZoom : defaultInitialZoom;

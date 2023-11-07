@@ -14,8 +14,6 @@ function demoMain () {
 
 	var cropper1 = new Croppie(mc, {
 		viewport: {
-			width: 150,
-			height: 150,
 			type: 'circle'
 		},
 	});
