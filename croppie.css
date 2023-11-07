@@ -1,8 +1,3 @@
-.croppie-container {
-    width: 100%;
-    height: 100%;
-}
-
 .croppie-container .cr-image {
     z-index: -1;
     position: absolute;
@@ -18,12 +13,15 @@
     overflow: hidden;
     margin: 0 auto;
     z-index: 1;
-    width: 100%;
-    height: 100%;
+    height: 300px;
 }
 
-.croppie-container .cr-viewport,
-.croppie-container .cr-resizer {
+.croppie-container .cr-boundary,
+.croppie-container .cr-slider-wrap {
+    width: 300px;
+}
+
+.croppie-container .cr-viewport {
     position: absolute;
     border: 2px solid #fff;
     margin: auto;
@@ -33,54 +31,6 @@
     left: 0;
     box-shadow: 0 0 2000px 2000px rgba(0, 0, 0, 0.5);
     z-index: 0;
-}
-
-.croppie-container .cr-resizer {
-  z-index: 2;
-  box-shadow: none;
-  pointer-events: none;
-}
-
-.croppie-container .cr-resizer-vertical,
-.croppie-container .cr-resizer-horizontal {
-  position: absolute;
-  pointer-events: all;
-}
-
-.croppie-container .cr-resizer-vertical::after,
-.croppie-container .cr-resizer-horizontal::after {
-    display: block;
-    position: absolute;
-    box-sizing: border-box;
-    border: 1px solid black;
-    background: #fff;
-    width: 10px;
-    height: 10px;
-    content: '';
-}
-
-.croppie-container .cr-resizer-vertical {
-  bottom: -5px;
-  cursor: row-resize;
-  width: 100%;
-  height: 10px;
-}
-
-.croppie-container .cr-resizer-vertical::after {
-    left: 50%;
-    margin-left: -5px;
-}
-
-.croppie-container .cr-resizer-horizontal {
-  right: -5px;
-  cursor: col-resize;
-  width: 10px;
-  height: 100%;
-}
-
-.croppie-container .cr-resizer-horizontal::after {
-    top: 50%;
-    margin-top: -5px;
 }
 
 .croppie-container .cr-vp-circle {
@@ -96,15 +46,8 @@
 
 .croppie-container .cr-slider-wrap {
     margin: 15px auto;
-    text-align: center;
 }
 
-.croppie-container .cr-image,
-.croppie-container .cr-overlay,
-.croppie-container .cr-viewport {
-    transform: translateZ(0);
-}
-
-.cr-slider {
+.croppie-container .cr-slider {
     width: 100%;
 }

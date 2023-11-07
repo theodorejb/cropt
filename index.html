@@ -84,22 +84,10 @@
                 <section>
                     <h3>Options</h3>
                     <ul>
-                        <li id="boundary">
-                            <strong class="focus">boundary</strong><em>object</em>
-                            <p>The outer container of the cropper</p>
-                            <span class="default">Default</span>
-                            <code class="language-html">will default to the size of the container</code>
-                        </li>
                         <li id="customClass">
                             <strong class="focus">customClass</strong><em>string</em>
                             <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
                             <span class="default">Default</span><code class="language-javascript">''</code>
-                        </li>
-                        <li id="enableResize">
-                            <strong class="focus">enableResize</strong><em>boolean</em>
-                            <p>Enable or disable support for resizing the viewport area.</p>
-                            <span class="default">Default</span>
-                            <code class="language-javascript">false</code>
                         </li>
                         <li id="mouseWheelZoom">
                             <strong class="focus">mouseWheelZoom</strong><em>bool/string</em>
@@ -116,8 +104,8 @@
                             <p>The inner container of the coppie.  The visible part of the image</p>
                             <span class="default">Default</span>
                             <code class="language-javascript">{ 
-                                width: 100,
-                                height: 100,
+                                width: 200,
+                                height: 200,
                                 type: 'square'
                             }</code>
                             <br /><br />
@@ -240,34 +228,6 @@ basic.toCanvas(300).then((canvas) => {
                     </div>
                 </div>
             </div>
-                <div class="demo-wrap">
-                    <div class="container">
-                        <div class="grid">
-                            <div class="col-1-2">
-                                <strong>Resizer Example</strong>
-                                <pre><code class="language-javascript">var el = document.getElementById('resizer-demo');
-var resize = new Croppie(el, {
-    viewport: { width: 150, height: 150 },
-    boundary: { width: 300, height: 300 },
-    showZoomer: false,
-    enableResize: true,
-    mouseWheelZoom: 'ctrl'
-});
-resize.bind('demo/demo-2.jpg', 0);
-//on button click
-basic.toBlob(300, "image/jpeg", 0.9).then((blob) => {
-    // do something with cropped blob
-});</code></pre>
-                                <div class="actions">
-                                    <button class="resizer-result">Result</button>
-                                </div>
-                            </div>
-                            <div class="col-1-2">
-                                <div id="resizer-demo"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="demo-wrap upload-demo">
                     <div class="container">
                     <div class="grid">
@@ -276,14 +236,8 @@ basic.toBlob(300, "image/jpeg", 0.9).then((blob) => {
                             <pre><code class="language-javascript">var uploadEl = document.getElementById('upload-demo');
 var uploadCrop = new Croppie(uploadEl, {
     viewport: {
-        width: 200,
-        height: 200,
         type: 'circle'
     },
-    boundary: {
-        width: 300,
-        height: 300
-    }
 });</code></pre>
                             <div class="actions">
                                 <a class="btn file-btn">

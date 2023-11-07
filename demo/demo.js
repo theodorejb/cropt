@@ -18,10 +18,6 @@ function demoMain () {
 			height: 150,
 			type: 'circle'
 		},
-		boundary: {
-			width: 300,
-			height: 300
-		},
 	});
 
 	cropper1.bind("demo/demo-1.jpg");
@@ -44,10 +40,6 @@ function demoBasic() {
 			width: 150,
 			height: 200
 		},
-		boundary: {
-			width: 300,
-			height: 300
-		},
 	});
 
 	basic.bind('demo/cat.jpg', 0.5);
@@ -62,39 +54,12 @@ function demoBasic() {
 	});
 }
 
-function demoResizer() {
-	var vEl = document.getElementById('resizer-demo'),
-		resize = new Croppie(vEl, {
-		viewport: { width: 150, height: 150 },
-		boundary: { width: 300, height: 300 },
-		showZoomer: false,
-		enableResize: true,
-		mouseWheelZoom: 'ctrl'
-	});
-
-	resize.bind('demo/demo-2.jpg', 0);
-
-	document.querySelector('.resizer-result').addEventListener('click', function (ev) {
-		resize.toBlob(300).then(function (blob) {
-			popupResult({
-				src: window.URL.createObjectURL(blob)
-			});
-		});
-	});
-}
-
 function demoUpload() {
 	var uploadEl = document.getElementById('upload-demo');
 	var uploadCrop = new Croppie(uploadEl, {
 		viewport: {
-			width: 200,
-			height: 200,
 			type: 'circle'
 		},
-		boundary: {
-			width: 300,
-			height: 300
-		}
 	});
 
 	function readFile(input) {
@@ -138,10 +103,6 @@ function demoHidden() {
 			height: 175,
 			type: 'circle'
 		},
-		boundary: {
-			width: 200,
-			height: 200
-		}
 	});
 
 	hiddenCrop.bind('demo/demo-3.jpg');	
@@ -174,6 +135,5 @@ function toggle(el) {
 
 demoMain();
 demoBasic();
-demoResizer();
 demoUpload();
 demoHidden();
