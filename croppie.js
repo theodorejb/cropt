@@ -89,11 +89,6 @@ function debounce(func, wait, immediate) {
     };
 }
 
-function dispatchChange(element) {
-    var event = new Event('change');
-    element.dispatchEvent(event);
-}
-
 function css(el, styles) {
     for (var prop in styles) {
         el.style[prop] = styles[prop];
@@ -264,7 +259,8 @@ export class Croppie {
      */
     setZoom(value) {
         this.#setZoomerVal(value);
-        dispatchChange(this.elements.zoomer);
+        var event = new Event('input');
+        this.elements.zoomer.dispatchEvent(event);
     }
 
     destroy() {
@@ -488,8 +484,7 @@ export class Croppie {
 
                     var scale = dist / originalDistance;
 
-                    this.#setZoomerVal(scale);
-                    dispatchChange(this.elements.zoomer);
+                    this.setZoom(scale);
                     return;
                 }
             }
@@ -744,17 +739,16 @@ export class Croppie {
             });
         };
 
+        /**
+         * @param {WheelEvent} ev 
+         */
         let scroll = (ev) => {
             var delta;
 
             if (this.options.mouseWheelZoom === 'ctrl' && ev.ctrlKey !== true){
-              return 0;
-            } else if (ev.wheelDelta) {
-                delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
+              return;
             } else if (ev.deltaY) {
-                delta = ev.deltaY / 1060; //deltaY min: -53 max: 53 // max x 10 x 2
-            } else if (ev.detail) {
-                delta = ev.detail / -60; //delta min: -3 max: 3 // max x 10 x 2
+                delta = ev.deltaY * -1 / 2000;
             } else {
                 delta = 0;
             }
@@ -765,12 +759,10 @@ export class Croppie {
             change();
         };
 
-        this.elements.zoomer.addEventListener('input', change); // this is being fired twice on keypress
-        this.elements.zoomer.addEventListener('change', change);
+        this.elements.zoomer.addEventListener('input', change);
 
         if (this.options.mouseWheelZoom) {
-            this.elements.boundary.addEventListener('mousewheel', scroll);
-            this.elements.boundary.addEventListener('DOMMouseScroll', scroll);
+            this.elements.boundary.addEventListener('wheel', scroll);
         }
     }
 
@@ -801,7 +793,6 @@ export class Croppie {
 
         this._currentZoom = ui ? ui.value : this._currentZoom;
         transform.scale = this._currentZoom;
-        this.elements.zoomer.setAttribute('aria-valuenow', this._currentZoom);
         applyCss();
 
         var boundaries = this.#getVirtualBoundaries(vpRect),
@@ -949,12 +940,10 @@ export class Croppie {
         if (initial) {
             defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             initialZoom = this.data.boundZoom !== null ? this.data.boundZoom : defaultInitialZoom;
-            this.#setZoomerVal(initialZoom);
+            this.setZoom(initialZoom);
         } else if (scale < zoomer.min || scale > zoomer.max) {
-            this.#setZoomerVal(scale < zoomer.min ? zoomer.min : zoomer.max);
+            this.setZoom(scale < zoomer.min ? zoomer.min : zoomer.max);
         }
-
-        dispatchChange(zoomer);
     }
 
     #bindPoints(points) {
