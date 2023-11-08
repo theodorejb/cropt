@@ -439,11 +439,9 @@ export class Croppie {
                     origPinchDistance = dist / this._currentZoom;
                 }
 
-                document.getElementById('debug-log').innerText = JSON.stringify({orig: origPinchDistance, zoom: dist / origPinchDistance});
                 this.setZoom(dist / origPinchDistance);
                 return;
             } else if (origPinchDistance !== 0) {
-                document.getElementById('debug-log').innerText = 'ignoring';
                 return; // ignore single pointer movement after pinch zoom
             }
 
