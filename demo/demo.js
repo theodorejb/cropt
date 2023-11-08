@@ -1,4 +1,4 @@
-import { Croppie } from "../croppie.js";
+import { Cropt } from "../cropt.js";
 
 function popupResult(result) {
 	var html = '<img src="' + result.src + '" class="' + result.viewport + '" style="max-width: 200px" />';
@@ -12,13 +12,13 @@ function popupResult(result) {
 function demoMain () {
 	var mc = document.getElementById('cropper-1');
 
-	var cropper1 = new Croppie(mc, {
+	var cropper1 = new Cropt(mc, {
 		viewport: {
 			type: 'circle'
 		},
 	});
 
-	cropper1.bind("demo/demo-1.jpg");
+	cropper1.bind("demo/woman-dog.jpg");
 
 	var mi = document.querySelector('.js-main-image');
 	mi.addEventListener('click', function () {
@@ -33,18 +33,18 @@ function demoMain () {
 
 function demoBasic() {
 	var basicEl = document.getElementById('demo-basic');
-	var basic = new Croppie(basicEl, {
+	var basic = new Cropt(basicEl, {
 		viewport: {
 			width: 150,
 			height: 200
 		},
 	});
 
-	basic.bind('demo/cat.jpg', 0.5);
+	basic.bind('demo/toucan.jpg', 0.25);
 
 	var basicResult = document.querySelector('.basic-result');
 	basicResult.addEventListener('click', function () {
-		basic.toCanvas(300).then(function (canvas) {
+		basic.toCanvas(350).then(function (canvas) {
 			popupResult({
 				src: canvas.toDataURL()
 			});
@@ -54,7 +54,7 @@ function demoBasic() {
 
 function demoUpload() {
 	var uploadEl = document.getElementById('upload-demo');
-	var uploadCrop = new Croppie(uploadEl, {
+	var uploadCrop = new Cropt(uploadEl, {
 		viewport: {
 			type: 'circle'
 		},
@@ -95,7 +95,7 @@ function demoHidden() {
 	var hidEl = document.getElementById('hidden-demo');
 	var hiddenResult = document.querySelector('.hidden-result');
 
-	var hiddenCrop = new Croppie(hidEl, {
+	var hiddenCrop = new Cropt(hidEl, {
 		viewport: {
 			width: 175,
 			height: 175,
@@ -103,7 +103,7 @@ function demoHidden() {
 		},
 	});
 
-	hiddenCrop.bind('demo/demo-3.jpg');	
+	hiddenCrop.bind('demo/girl-piano.jpg');	
 
 	hiddenResult.addEventListener('click', function (ev) {
 		hiddenCrop.toCanvas(300).then(function (canvas) {

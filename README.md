@@ -1,36 +1,102 @@
-# Croppie - A Javascript Image Cropper
+# Cropt - a JavaScript image cropper
 
+Originally based on [Foliotek/Croppie](https://github.com/Foliotek/Croppie), but rewritten as a modern ES module with a simpler API, higher quality image scaling, and numerous other improvements.
 
-## To Install
+## Installation
 
-Npm: `npm install croppie`
-
-Download:
-[croppie.js](croppie.js) & [croppie.css](croppie.css)
-
-## Adding croppie to your site
-```html
-<link rel="stylesheet" href="croppie.css" />
-<script src="croppie.js"></script>
+```
+npm install cropt
 ```
 
-## CDN
-cdnjs.com provides croppie via cdn https://cdnjs.com/libraries/croppie
-```
-https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.css
-https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.js
+## Usage
+
+1. Include the `cropt.css` stylesheet on your page.
+2. Add a `div` element to your HTML to hold the Cropt instance.
+3. Import Cropt and bind it to an image:
+
+```javascript
+import { Cropt } from "cropt";
+
+let c = new Cropt(document.getElementById('demo'), options);
+c.bind("path/to/image.jpg");
 ```
 
-## Documentation
-[Documentation](http://foliotek.github.io/Croppie#documentation)
+## Options
 
-#### Releasing a new version
-For the most part, you shouldn't worry about these steps unless you're the one handling the release.  Please don't bump the release and don't minify/uglify in a PR.  That just creates merge conflicts when merging.  Those steps will be performed when the release is created.
-1. Bump version in croppie.js
-2. Minify/Uglify
-3. Commit
-4. npm version [new version]
-5. `git push && git push --tags`
-6. `npm publish`
-7. Draft a new release with new tag on https://github.com/Foliotek/Croppie/releases
-8. Deploy to gh-pages `npm run deploy`
+### `customClass`
+
+Type: `string`  
+Default value: `""`
+
+Enables adding a class of your choosing to the container for custom styling.
+
+### `mouseWheelZoom`
+
+Type: `boolean | "ctrl"`  
+Default value: `true`
+
+If set to `false`, the mouse wheel cannot be used to zoom in and out of the image. If set to `"ctrl"`, the mouse wheel will only zoom in and out while the CTRL key is pressed.
+
+### `viewport`
+
+Type: `{ width: number, height: number, type: "square" | "circle" }`  
+Default value: `{ width: 200, height: 200, type: "square" }`
+
+Defines the size and shape of the crop box.
+
+## Methods
+
+### `bind(src: string, zoom: number | null = null): Promise<void>`
+
+Takes an image URL as the first argument, and an optional initial zoom value. Returns a `Promise` which resolves when the image has been loaded and state is initialized.
+
+### `destroy(): void`
+
+Deconstructs a Cropt instance and removes the elements from the DOM.
+
+### `refresh(): void`
+
+Recalculate points for the image. Necessary if the instance was initially bound to a hidden element.
+
+### `toCanvas(size: number | null = null): Promise<HTMLCanvasElement>`
+
+Returns a `Promise` resolving to an `HTMLCanvasElement` object for the cropped image. If `size` is specified, the cropped image will be scaled with its longest side set to this value.
+
+### `toBlob(size: number | null = null, type = "image/webp", quality = 1): Promise<Blob>`
+
+Returns a Promise resolving to a `Blob` object for the cropped image. If `size` is specified, the cropped image will be scaled with its longest side set to this value. The `type` and `quality` parameters are passed directly to the corresponding [HTMLCanvasElement.toBlob()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob) method parameters.
+
+### `setZoom(value: number): void`
+
+Set the zoom of a Cropt instance. The value must be between 0 and 1, and is restricted to the min/max set by Cropt.
+
+## Visibility and binding
+
+Cropt is dependent on its container being visible when the bind method is called. This can be an issue when your component is inside a modal that isn't shown. Consider the Bootstrap modal, for example:
+
+```javascript
+const cropEl = document.getElementById('my-cropt');
+const c = new Cropt(cropEl, opts);
+const myModal = document.getElementById('my-modal');
+
+myModal.addEventListener('shown.bs.modal', () => {
+    c.bind("my/image.jpg");
+});
+```
+
+If you have issues getting the correct result, and your Cropt instance is shown inside a modal, try taking it out of the modal and see if the issue persists. If not, make sure that your bind method is called after the modal finishes opening.
+
+## Browser support
+
+Cropt is tested in the following browsers:
+
+* Firefox
+* Safari
+* Chrome
+* Edge
+
+Cropt should also work in any other modern browser using an engine based on Gecko, WebKit, or Chromium.
+
+## License
+
+MIT

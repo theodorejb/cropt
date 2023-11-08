@@ -1,8 +1,8 @@
 {
-  "name": "croppie",
-  "version": "2.6.5",
-  "description": "A simple javascript image cropper",
-  "main": "croppie.js",
+  "name": "cropt",
+  "version": "0.0.1",
+  "description": "A JavaScript image cropper",
+  "main": "cropt.js",
   "devDependencies": {
     "gh-pages": "^6.0.0",
     "http-server": "^14.1.1"
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Foliotek/Croppie.git"
+    "url": "git+https://github.com/theodorejb/cropt.git"
   },
   "keywords": [
     "crop",
@@ -22,16 +22,15 @@
     "cropping"
   ],
   "authors": [
-    "Dustin Smith <thedustinsmith@gmail.com>",
-    "Ethan Calvert <calvert1591@gmail.com>"
+    "Theodore Brown <theodorejb@outlook.com>"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Foliotek/Croppie/issues"
+    "url": "https://github.com/theodorejb/cropt/issues"
   },
-  "homepage": "http://foliotek.github.io/Croppie",
+  "homepage": "http://theodorejb.github.io/cropt",
   "files": [
-    "croppie.css",
-    "croppie.js"
+    "cropt.css",
+    "cropt.js"
   ]
 }
