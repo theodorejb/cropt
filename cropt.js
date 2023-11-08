@@ -74,18 +74,15 @@ function clone(object) {
     return deepExtend({}, object);
 }
 
-function debounce(func, wait, immediate) {
-    var timeout;
-    return function () {
-        var context = this, args = arguments;
-        var later = function () {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
+function debounce(func, wait) {
+    let timeoutId;
+
+    return (...args) => {
+        clearTimeout(timeoutId);
+
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, wait);
     };
 }
 
@@ -119,16 +116,6 @@ function loadImage(src) {
     });
 }
 
-/**
- * @param {HTMLImageElement} img
- */
-function naturalImageDimensions(img) {
-    return {
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-    };
-}
-
 export class Cropt {
     static defaults = {
         viewport: {
@@ -136,7 +123,6 @@ export class Cropt {
             height: 200,
             type: 'square'
         },
-        customClass: '',
         zoomerInputClass: 'cr-slider',
         mouseWheelZoom: true,
     };
@@ -144,13 +130,14 @@ export class Cropt {
     /**
      * @param {HTMLElement} element
      */
-    constructor(element, opts) {
+    constructor(element, options) {
         if (element.classList.contains('cropt-container')) {
             throw new Error("Cropt is already initialized on this element");
         }
 
         this.element = element;
-        this.options = deepExtend(clone(Cropt.defaults), opts);
+        this.element.classList.add('cropt-container');
+        this.options = deepExtend(clone(Cropt.defaults), options);
         this.#create();
     }
 
@@ -242,8 +229,19 @@ export class Cropt {
     }
 
     refresh() {
-        this.#setViewport();
         this.#updatePropertiesFromImage();
+    }
+
+    setOptions(options) {
+        const curWidth = this.options.viewport.width;
+        const curHeight = this.options.viewport.height;
+        
+        this.options = deepExtend(this.options, options);
+        this.#setOptionsCss();
+
+        if (this.options.viewport.width !== curWidth || this.options.viewport.height !== curHeight) {
+            this.refresh();
+        }
     }
 
     /**
@@ -270,37 +268,40 @@ export class Cropt {
 
         var boundary = this.elements.boundary = document.createElement('div');
         var viewport = this.elements.viewport = document.createElement('div');
-        var img = this.elements.img = document.createElement('img');
+        var preview = this.elements.preview = document.createElement('img');
         var overlay = this.elements.overlay = document.createElement('div');
-        this.elements.preview = img;
+        var zoomerWrap = this.elements.zoomerWrap = document.createElement('div');
+        var zoomer = this.elements.zoomer = document.createElement('input');
 
         boundary.classList.add('cr-boundary');
         boundary.setAttribute('aria-dropeffect', 'none');
         viewport.setAttribute('tabindex', 0);
         viewport.classList.add('cr-viewport');
 
-        this.#setViewport();
-
-        this.elements.preview.classList.add('cr-image');
-        this.elements.preview.setAttribute('alt', 'preview');
-        this.elements.preview.setAttribute('aria-grabbed', 'false');
+        this.#setPreviewAttributes(preview);
         overlay.classList.add('cr-overlay');
 
         this.element.appendChild(boundary);
-        boundary.appendChild(this.elements.preview);
+        boundary.appendChild(preview);
         boundary.appendChild(viewport);
         boundary.appendChild(overlay);
 
-        this.element.classList.add('cropt-container');
-        if (this.options.customClass) {
-            this.element.classList.add(this.options.customClass);
-        }
+        zoomerWrap.classList.add('cr-slider-wrap');
+        zoomer.type = 'range';
+        zoomer.step = '0.001';
+        zoomer.value = '1';
+        zoomer.setAttribute('aria-label', 'zoom');
 
+        this.element.appendChild(zoomerWrap);
+        zoomerWrap.appendChild(zoomer);
+
+        this.#setOptionsCss();
         this.#initDraggable();
         this.#initializeZoom();
     }
 
-    #setViewport() {
+    #setOptionsCss() {
+        this.elements.zoomer.className = this.options.zoomerInputClass;
         const circleClass = "cr-vp-circle";
         const viewport = this.elements.viewport;
 
@@ -562,23 +563,11 @@ export class Cropt {
     }
 
     #initializeZoom() {
-        var wrap = this.elements.zoomerWrap = document.createElement('div'),
-            zoomer = this.elements.zoomer = document.createElement('input');
-
-        wrap.classList.add('cr-slider-wrap');
-        zoomer.classList.add(this.options.zoomerInputClass);
-        zoomer.type = 'range';
-        zoomer.step = '0.001';
-        zoomer.value = '1';
-        zoomer.setAttribute('aria-label', 'zoom');
-
-        this.element.appendChild(wrap);
-        wrap.appendChild(zoomer);
         this._currentZoom = 1;
 
         let change = () => {
             this.#onZoom({
-                value: parseFloat(zoomer.value),
+                value: parseFloat(this.elements.zoomer.value),
                 origin: new TransformOrigin(this.elements.preview),
                 viewportRect: this.elements.viewport.getBoundingClientRect(),
                 transform: Transform.parse(this.elements.preview)
@@ -668,12 +657,18 @@ export class Cropt {
      * @param {HTMLImageElement} img
      */
     #replaceImage(img) {
-        if (this.elements.img.parentNode) {
-            Array.prototype.forEach.call(this.elements.img.classList, function(c) { img.classList.add(c); });
-            this.elements.img.parentNode.replaceChild(img, this.elements.img);
-            this.elements.preview = img; // if the img is attached to the DOM, they're not using the canvas
-        }
-        this.elements.img = img;
+        this.#setPreviewAttributes(img);
+        this.elements.preview.parentNode.replaceChild(img, this.elements.preview);
+        this.elements.preview = img;
+    }
+
+    /**
+     * @param {HTMLImageElement} preview
+     */
+    #setPreviewAttributes(preview) {
+        preview.classList.add('cr-image');
+        preview.setAttribute('alt', 'preview');
+        preview.setAttribute('aria-grabbed', 'false');
     }
 
     #isVisible() {
@@ -743,26 +738,22 @@ export class Cropt {
 
     #updateZoomLimits() {
         var maxZoom = 0.85,
-            initialZoom,
-            defaultInitialZoom,
-            zoomer = this.elements.zoomer,
-            boundaryData = this.elements.boundary.getBoundingClientRect(),
-            imgData = naturalImageDimensions(this.elements.img),
+            bData = this.elements.boundary.getBoundingClientRect(),
+            img = this.elements.preview,
             vpData = this.elements.viewport.getBoundingClientRect(),
-            minW = vpData.width / imgData.width,
-            minH = vpData.height / imgData.height,
+            minW = vpData.width / img.naturalWidth,
+            minH = vpData.height / img.naturalHeight,
             minZoom = Math.max(minW, minH);
 
         if (minZoom >= maxZoom) {
             maxZoom += minZoom;
         }
 
-        zoomer.min = fix(minZoom, 3);
-        zoomer.max = fix(maxZoom, 3);
+        this.elements.zoomer.min = fix(minZoom, 3);
+        this.elements.zoomer.max = fix(maxZoom, 3);
 
-        defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
-        initialZoom = this.data.boundZoom !== null ? this.data.boundZoom : defaultInitialZoom;
-        this.setZoom(initialZoom);
+        var defaultZoom = Math.max((bData.width / img.naturalWidth), (bData.height / img.naturalHeight));
+        this.setZoom(this.data.boundZoom !== null ? this.data.boundZoom : defaultZoom);
     }
 
     #centerImage() {

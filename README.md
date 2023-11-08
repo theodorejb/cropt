@@ -23,13 +23,6 @@ c.bind("path/to/image.jpg");
 
 ## Options
 
-### `customClass`
-
-Type: `string`  
-Default value: `""`
-
-Enables adding a class of your choosing to the container for custom styling.
-
 ### `mouseWheelZoom`
 
 Type: `"off" | "on" | "ctrl"`  
@@ -72,6 +65,10 @@ Returns a `Promise` resolving to an `HTMLCanvasElement` object for the cropped i
 ### `toBlob(size: number | null = null, type = "image/webp", quality = 1): Promise<Blob>`
 
 Returns a Promise resolving to a `Blob` object for the cropped image. If `size` is specified, the cropped image will be scaled with its longest side set to this value. The `type` and `quality` parameters are passed directly to the corresponding [HTMLCanvasElement.toBlob()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob) method parameters.
+
+### `setOptions(options: CroptOptions): void`
+
+Allows options to be dynamically changed on an existing Cropt instance.
 
 ### `setZoom(value: number): void`
 
