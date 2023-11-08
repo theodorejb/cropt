@@ -1,0 +1,53 @@
+.cropt-container .cr-image {
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    max-height: none;
+    max-width: none;
+}
+
+.cropt-container .cr-boundary {
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+    z-index: 1;
+    height: 300px;
+}
+
+.cropt-container .cr-boundary,
+.cropt-container .cr-slider-wrap {
+    width: 300px;
+}
+
+.cropt-container .cr-viewport {
+    position: absolute;
+    border: 2px solid #fff;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    box-shadow: 0 0 2000px 2000px rgba(0, 0, 0, 0.5);
+    z-index: 0;
+}
+
+.cropt-container .cr-vp-circle {
+    border-radius: 50%;
+}
+
+.cropt-container .cr-overlay {
+    z-index: 1;
+    position: absolute;
+    cursor: move;
+    touch-action: none;
+}
+
+.cropt-container .cr-slider-wrap {
+    margin: 15px auto;
+}
+
+.cropt-container .cr-slider {
+    width: 100%;
+}
