@@ -392,7 +392,6 @@ export class Croppie {
     #initDraggable() {
         var originalX = 0,
             originalY = 0,
-            originalDistance = 0,
             vpRect,
             transform;
 
@@ -419,6 +418,7 @@ export class Croppie {
          * @type {PointerEvent[]}
          */
         let pEventCache = [];
+        let prevDistance = 0;
 
         /**
          * @param {PointerEvent} ev
@@ -426,18 +426,22 @@ export class Croppie {
         let pointerMove = (ev) => {
             ev.preventDefault();
 
-            if (pEventCache.length > 1) {
+            // update cached event
+            const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
+            pEventCache[cacheIndex] = ev;
+
+            if (pEventCache.length === 2) {
                 // pinch zoom
                 let touch1 = pEventCache[0];
                 let touch2 = pEventCache[1];
                 let dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
+                document.getElementById('debug-log').innerText = dist;
 
-                if (!originalDistance) {
-                    originalDistance = dist / this._currentZoom;
+                if (prevDistance > 0) {
+                    this.setZoom(dist / prevDistance);
                 }
 
-                document.getElementById('debug-log').innerText = `dist: ${dist}, orig dist: ${originalDistance}`;
-                this.setZoom(dist / originalDistance);
+                prevDistance = dist;
                 return;
             }
 
@@ -459,11 +463,7 @@ export class Croppie {
          */
         let pointerUp = (ev) => {
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
-
-            if (cacheIndex >= 0) {
-                pEventCache.splice(cacheIndex, 1);
-            }
-
+            pEventCache.splice(cacheIndex, 1);
             this.elements.overlay.releasePointerCapture(ev.pointerId);
 
             if (pEventCache.length === 0) {
@@ -473,7 +473,7 @@ export class Croppie {
 
                 toggleGrabState(false);
                 this.#updateCenterPoint();
-                originalDistance = 0;
+                prevDistance = 0;
             }
         }
 
@@ -531,7 +531,6 @@ export class Croppie {
 
                 this.#updateOverlay();
                 this.#updateCenterPoint();
-                originalDistance = 0;
             }
 
             function getMovement(key) {
