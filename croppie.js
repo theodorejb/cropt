@@ -436,6 +436,7 @@ export class Croppie {
                     originalDistance = dist / this._currentZoom;
                 }
 
+                document.getElementById('debug-log').innerText = `dist: ${dist}, orig dist: ${originalDistance}`;
                 this.setZoom(dist / originalDistance);
                 return;
             }
@@ -485,18 +486,17 @@ export class Croppie {
             }
 
             ev.preventDefault();
+            pEventCache.push(ev);
+            this.elements.overlay.setPointerCapture(ev.pointerId);
 
-            if (pEventCache.length === 2) {
+            if (pEventCache.length > 1) {
                 return; // ignore additional pointers
             }
 
-            pEventCache.push(ev);
             originalX = ev.pageX;
             originalY = ev.pageY;
-
             toggleGrabState(true);
             transform = Transform.parse(this.elements.preview);
-            this.elements.overlay.setPointerCapture(ev.pointerId);
             vpRect = this.elements.viewport.getBoundingClientRect();
 
             this.elements.overlay.addEventListener('pointermove', pointerMove);
