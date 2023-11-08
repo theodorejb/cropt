@@ -32,10 +32,10 @@ Enables adding a class of your choosing to the container for custom styling.
 
 ### `mouseWheelZoom`
 
-Type: `boolean | "ctrl"`  
-Default value: `true`
+Type: `"off" | "on" | "ctrl"`  
+Default value: `"on"`
 
-If set to `false`, the mouse wheel cannot be used to zoom in and out of the image. If set to `"ctrl"`, the mouse wheel will only zoom in and out while the CTRL key is pressed.
+If set to `"off"`, the mouse wheel cannot be used to zoom in and out of the image. If set to `"ctrl"`, the mouse wheel will only zoom in and out while the CTRL key is pressed.
 
 ### `viewport`
 

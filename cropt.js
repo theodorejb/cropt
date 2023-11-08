@@ -582,27 +582,22 @@ export class Cropt {
          * @param {WheelEvent} ev 
          */
         let scroll = (ev) => {
-            var delta;
+            const optionVal = this.options.mouseWheelZoom;
+            let delta = 0;
 
-            if (this.options.mouseWheelZoom === 'ctrl' && ev.ctrlKey !== true){
-              return;
+            if (optionVal === 'off' || optionVal === 'ctrl' && !ev.ctrlKey) {
+                return;
             } else if (ev.deltaY) {
                 delta = ev.deltaY * -1 / 2000;
-            } else {
-                delta = 0;
             }
 
-            var targetZoom = this._currentZoom + (delta * this._currentZoom);
             ev.preventDefault();
-            this.#setZoomerVal(targetZoom);
+            this.#setZoomerVal(this._currentZoom + (delta * this._currentZoom));
             change();
         };
 
         this.elements.zoomer.addEventListener('input', change);
-
-        if (this.options.mouseWheelZoom) {
-            this.elements.boundary.addEventListener('wheel', scroll);
-        }
+        this.elements.boundary.addEventListener('wheel', scroll);
     }
 
     /**
@@ -741,7 +736,7 @@ export class Cropt {
     }
 
     #updateZoomLimits() {
-        var maxZoom = 1,
+        var maxZoom = 0.85,
             initialZoom,
             defaultInitialZoom,
             zoomer = this.elements.zoomer,
