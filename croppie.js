@@ -435,13 +435,15 @@ export class Croppie {
                 let touch2 = pEventCache[1];
                 let dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
 
-                if (!origPinchDistance) {
+                if (origPinchDistance === 0) {
                     origPinchDistance = dist / this._currentZoom;
                 }
 
+                document.getElementById('debug-log').innerText = JSON.stringify({orig: origPinchDistance, zoom: dist / origPinchDistance});
                 this.setZoom(dist / origPinchDistance);
                 return;
-            } else if (origPinchDistance) {
+            } else if (origPinchDistance !== 0) {
+                document.getElementById('debug-log').innerText = 'ignoring';
                 return; // ignore single pointer movement after pinch zoom
             }
 
@@ -475,7 +477,7 @@ export class Croppie {
                 this.#updateCenterPoint();
                 origPinchDistance = 0;
             }
-        }
+        };
 
         /**
          * @param {PointerEvent} ev
