@@ -418,7 +418,7 @@ export class Croppie {
          * @type {PointerEvent[]}
          */
         let pEventCache = [];
-        let prevDistance = 0;
+        let originalDistance = 0;
 
         /**
          * @param {PointerEvent} ev
@@ -437,11 +437,11 @@ export class Croppie {
                 let dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
                 document.getElementById('debug-log').innerText = dist;
 
-                if (prevDistance > 0) {
-                    this.setZoom(dist / prevDistance);
+                if (!originalDistance) {
+                    originalDistance = dist / this._currentZoom;
                 }
 
-                prevDistance = dist;
+                this.setZoom(dist / originalDistance);
                 return;
             }
 
@@ -466,14 +466,14 @@ export class Croppie {
             pEventCache.splice(cacheIndex, 1);
             this.elements.overlay.releasePointerCapture(ev.pointerId);
 
-            if (pEventCache.length === 0) {
+            if (pEventCache.length < 2) {
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointercancel', pointerUp);
 
                 toggleGrabState(false);
                 this.#updateCenterPoint();
-                prevDistance = 0;
+                originalDistance = 0;
             }
         }
 
