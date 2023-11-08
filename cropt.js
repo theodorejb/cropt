@@ -165,7 +165,6 @@ export class Cropt {
             throw new Error('src cannot be empty');
         }
 
-        this.data.bound = false;
         this.data.boundZoom = zoom;
 
         return loadImage(src).then((img) => {
@@ -243,6 +242,7 @@ export class Cropt {
     }
 
     refresh() {
+        this.#setViewport();
         this.#updatePropertiesFromImage();
     }
 
@@ -264,8 +264,6 @@ export class Cropt {
     }
 
     #create() {
-        var customViewportClass = this.options.viewport.type ? 'cr-vp-' + this.options.viewport.type : null;
-
         // Properties on class
         this.data = {};
         this.elements = {};
@@ -281,14 +279,7 @@ export class Cropt {
         viewport.setAttribute('tabindex', 0);
         viewport.classList.add('cr-viewport');
 
-        if (customViewportClass) {
-            viewport.classList.add(customViewportClass);
-        }
-
-        css(viewport, {
-            width: this.options.viewport.width + 'px',
-            height: this.options.viewport.height + 'px'
-        });
+        this.#setViewport();
 
         this.elements.preview.classList.add('cr-image');
         this.elements.preview.setAttribute('alt', 'preview');
@@ -307,6 +298,22 @@ export class Cropt {
 
         this.#initDraggable();
         this.#initializeZoom();
+    }
+
+    #setViewport() {
+        const circleClass = "cr-vp-circle";
+        const viewport = this.elements.viewport;
+
+        if (this.options.viewport.type === "circle") {
+            viewport.classList.add(circleClass);
+        } else {
+            viewport.classList.remove(circleClass)
+        }
+
+        css(viewport, {
+            width: this.options.viewport.width + 'px',
+            height: this.options.viewport.height + 'px'
+        });
     }
 
     #getUnscaledCanvas(p) {
@@ -688,12 +695,11 @@ export class Cropt {
     }
 
     #updatePropertiesFromImage() {
-        if (!this.#isVisible() || this.data.bound) {
+        if (!this.#isVisible()) {
             return;
         }
 
         var transformReset = new Transform(0, 0, 1);
-        this.data.bound = true;
 
         var cssReset = {
             transform: transformReset.toString(),

@@ -1,4 +1,4 @@
-# Cropt - a JavaScript image cropper
+# Cropt - lightweight JavaScript image cropper
 
 Originally based on [Foliotek/Croppie](https://github.com/Foliotek/Croppie), but rewritten as a modern ES module with a simpler API, higher quality image scaling, and numerous other improvements.
 
@@ -43,6 +43,13 @@ Type: `{ width: number, height: number, type: "square" | "circle" }`
 Default value: `{ width: 200, height: 200, type: "square" }`
 
 Defines the size and shape of the crop box.
+
+### `zoomerInputClass`
+
+Type: `string`  
+Default value: `"cr-slider"`
+
+Optionally set a different class on the zoom range input to customize styling.
 
 ## Methods
 
