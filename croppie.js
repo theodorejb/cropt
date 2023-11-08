@@ -418,7 +418,7 @@ export class Croppie {
          * @type {PointerEvent[]}
          */
         let pEventCache = [];
-        let originalDistance = 0;
+        let origPinchDistance = 0;
 
         /**
          * @param {PointerEvent} ev
@@ -431,18 +431,18 @@ export class Croppie {
             pEventCache[cacheIndex] = ev;
 
             if (pEventCache.length === 2) {
-                // pinch zoom
                 let touch1 = pEventCache[0];
                 let touch2 = pEventCache[1];
                 let dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
-                document.getElementById('debug-log').innerText = dist;
 
-                if (!originalDistance) {
-                    originalDistance = dist / this._currentZoom;
+                if (!origPinchDistance) {
+                    origPinchDistance = dist / this._currentZoom;
                 }
 
-                this.setZoom(dist / originalDistance);
+                this.setZoom(dist / origPinchDistance);
                 return;
+            } else if (origPinchDistance) {
+                return; // ignore single pointer movement after pinch zoom
             }
 
             let deltaX = ev.pageX - originalX;
@@ -466,14 +466,14 @@ export class Croppie {
             pEventCache.splice(cacheIndex, 1);
             this.elements.overlay.releasePointerCapture(ev.pointerId);
 
-            if (pEventCache.length < 2) {
+            if (pEventCache.length === 0) {
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointercancel', pointerUp);
 
                 toggleGrabState(false);
                 this.#updateCenterPoint();
-                originalDistance = 0;
+                origPinchDistance = 0;
             }
         }
 
