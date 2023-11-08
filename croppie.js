@@ -390,10 +390,9 @@ export class Croppie {
     }
 
     #initDraggable() {
-        var isDragging = false,
-            originalX,
-            originalY,
-            originalDistance,
+        var originalX = 0,
+            originalY = 0,
+            originalDistance = 0,
             vpRect,
             transform;
 
@@ -416,37 +415,33 @@ export class Croppie {
             this.elements.boundary.setAttribute('aria-dropeffect', isDragging ? 'move': 'none');
         };
 
-        let mouseMove = (ev) => {
+        /**
+         * @type {PointerEvent[]}
+         */
+        let pEventCache = [];
+
+        /**
+         * @param {PointerEvent} ev
+         */
+        let pointerMove = (ev) => {
             ev.preventDefault();
-            var pageX = ev.pageX,
-                pageY = ev.pageY;
 
-            if (ev.touches) {
-                var touches = ev.touches[0];
-                pageX = touches.pageX;
-                pageY = touches.pageY;
-            }
+            if (pEventCache.length > 1) {
+                // pinch zoom
+                let touch1 = pEventCache[0];
+                let touch2 = pEventCache[1];
+                let dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
 
-            var deltaX = pageX - originalX,
-                deltaY = pageY - originalY;
-
-            if (ev.type === 'touchmove') {
-                if (ev.touches.length > 1) {
-                    var touch1 = ev.touches[0];
-                    var touch2 = ev.touches[1];
-                    var dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
-
-                    if (!originalDistance) {
-                        originalDistance = dist / this._currentZoom;
-                    }
-
-                    var scale = dist / originalDistance;
-
-                    this.setZoom(scale);
-                    return;
+                if (!originalDistance) {
+                    originalDistance = dist / this._currentZoom;
                 }
+
+                this.setZoom(dist / originalDistance);
+                return;
             }
 
+            let deltaX = ev.pageX - originalX;
+            let deltaY = ev.pageY - originalY;
             assignTransformCoordinates(deltaX, deltaY);
 
             css(this.elements.preview, {
@@ -454,21 +449,60 @@ export class Croppie {
             });
 
             this.#updateOverlay();
-            originalY = pageY;
-            originalX = pageX;
+            originalX = ev.pageX;
+            originalY = ev.pageY;
         };
 
-        let mouseUp = () => {
-            isDragging = false;
-            toggleGrabState(isDragging);
-            window.removeEventListener('mousemove', mouseMove);
-            window.removeEventListener('touchmove', mouseMove);
-            window.removeEventListener('mouseup', mouseUp);
-            window.removeEventListener('touchend', mouseUp);
-            document.body.style.userSelect = '';
-            this.#updateCenterPoint();
-            originalDistance = 0;
+        /**
+         * @param {PointerEvent} ev
+         */
+        let pointerUp = (ev) => {
+            const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
+
+            if (cacheIndex >= 0) {
+                pEventCache.splice(cacheIndex, 1);
+            }
+
+            this.elements.overlay.releasePointerCapture(ev.pointerId);
+
+            if (pEventCache.length === 0) {
+                this.elements.overlay.removeEventListener('pointermove', pointerMove);
+                this.elements.overlay.removeEventListener('pointerup', pointerUp);
+                this.elements.overlay.removeEventListener('pointercancel', pointerUp);
+
+                toggleGrabState(false);
+                this.#updateCenterPoint();
+                originalDistance = 0;
+            }
         }
+
+        /**
+         * @param {PointerEvent} ev
+         */
+        let pointerDown = (ev) => {
+            if (ev.button) {
+                return; // non-left mouse button press
+            }
+
+            ev.preventDefault();
+
+            if (pEventCache.length === 2) {
+                return; // ignore additional pointers
+            }
+
+            pEventCache.push(ev);
+            originalX = ev.pageX;
+            originalY = ev.pageY;
+
+            toggleGrabState(true);
+            transform = Transform.parse(this.elements.preview);
+            this.elements.overlay.setPointerCapture(ev.pointerId);
+            vpRect = this.elements.viewport.getBoundingClientRect();
+
+            this.elements.overlay.addEventListener('pointermove', pointerMove);
+            this.elements.overlay.addEventListener('pointerup', pointerUp);
+            this.elements.overlay.addEventListener('pointercancel', pointerUp);
+        };
 
         /**
          * @param {KeyboardEvent} ev
@@ -488,7 +522,6 @@ export class Croppie {
                 let [deltaX, deltaY] = getMovement(ev.key);
 
                 transform = Transform.parse(this.elements.preview);
-                document.body.style.userSelect = 'none';
                 vpRect = this.elements.viewport.getBoundingClientRect();
                 assignTransformCoordinates(deltaX, deltaY);
 
@@ -497,7 +530,6 @@ export class Croppie {
                 });
 
                 this.#updateOverlay();
-                document.body.style.userSelect = '';
                 this.#updateCenterPoint();
                 originalDistance = 0;
             }
@@ -515,34 +547,9 @@ export class Croppie {
             }
         };
 
-        let mouseDown = (ev) => {
-            if (ev.button !== undefined && ev.button !== 0) return;
-
-            ev.preventDefault();
-            if (isDragging) return;
-            isDragging = true;
-            originalX = ev.pageX;
-            originalY = ev.pageY;
-
-            if (ev.touches) {
-                var touches = ev.touches[0];
-                originalX = touches.pageX;
-                originalY = touches.pageY;
-            }
-            toggleGrabState(isDragging);
-            transform = Transform.parse(this.elements.preview);
-            window.addEventListener('mousemove', mouseMove);
-            window.addEventListener('touchmove', mouseMove);
-            window.addEventListener('mouseup', mouseUp);
-            window.addEventListener('touchend', mouseUp);
-            document.body.style.userSelect = 'none';
-            vpRect = this.elements.viewport.getBoundingClientRect();
-        };
-
-        this.elements.overlay.addEventListener('mousedown', mouseDown);
+        this.elements.overlay.addEventListener('pointerdown', pointerDown);
         document.addEventListener('keydown', keyDown);
         this.keyDownHandler = keyDown;
-        this.elements.overlay.addEventListener('touchstart', mouseDown);
     }
 
     #initializeZoom() {
