@@ -357,6 +357,10 @@ export class Cropt {
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointercancel', pointerUp);
                 document.body.style.userSelect = '';
+                const el = document.getElementById('demo-debug');
+                if (el) {
+                    el.innerText = 'removed user select none';
+                }
                 toggleGrabState(false);
                 this.#updateCenterPoint();
                 origPinchDistance = 0;
@@ -378,6 +382,10 @@ export class Cropt {
             transform = Transform.parse(this.elements.preview);
             vpRect = this.elements.viewport.getBoundingClientRect();
             document.body.style.userSelect = 'none'; // prevent touch and hold image popup
+            const el = document.getElementById('demo-debug');
+            if (el) {
+                el.innerText = 'user select none';
+            }
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
             this.elements.overlay.addEventListener('pointercancel', pointerUp);
