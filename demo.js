@@ -17,32 +17,31 @@ let photos = [
 ];
 
 let photoSrc = "photos/" + photos[Math.floor(Math.random() * photos.length)];
-let viewportWidth = 200;
-let viewportHeight = 200;
-let viewportType = "circle";
-let mouseWheelZoom = "on";
-let zoomerInputClass = "form-range";
+
+let options = {
+    viewport: {
+        width: 200,
+        height: 200,
+        type: "circle",
+    },
+    mouseWheelZoom: "on",
+    zoomerInputClass: "form-range",
+};
 
 function getCode() {
+    const optionStr = JSON.stringify(options, undefined, 4);
+
     return `import { Cropt } from "cropt";
 
 const cropEl = document.getElementById("img-crop");
 const resultBtn = document.getElementById("result-btn");
 
-const cropt = new Cropt(cropEl, {
-    viewport: {
-        width: ${viewportWidth},
-        height: ${viewportHeight},
-        type: "${viewportType}",
-    },
-    mouseWheelZoom: "${mouseWheelZoom}";
-    zoomerInputClass: "${zoomerInputClass}"
-});
+const cropt = new Cropt(cropEl, ${optionStr});
 
 cropt.bind("${photoSrc}");
 
 resultBtn.addEventListener("click", () => {
-    cropt.toCanvas(350).then((canvas) => {
+    cropt.toCanvas(400).then((canvas) => {
         let url = canvas.toDataURL();
         // Data URL can be set as the src of an image element.
         // Display in modal dialog.
@@ -58,18 +57,9 @@ function setCode() {
 function demoMain () {
     const cropEl = document.getElementById('cropper-1');
     const resultBtn = document.getElementById('resultBtn');
-
-    var cropt = new Cropt(cropEl, {
-        viewport: {
-            width: viewportWidth,
-            height: viewportHeight,
-            type: viewportType,
-        },
-        zoomerInputClass: zoomerInputClass,
-    });
-
+    const cropt = new Cropt(cropEl, options);
     cropt.bind(photoSrc);
-    
+
     resultBtn.onclick = function () {
         cropt.toCanvas(400).then(function (canvas) {
             popupResult({
@@ -79,65 +69,62 @@ function demoMain () {
         });
     };
 
-	const vpTypeSelect = document.getElementById('viewportType');
-	vpTypeSelect.value = viewportType;
+    const vpTypeSelect = document.getElementById('viewportType');
+    vpTypeSelect.value = options.viewport.type;
 
     vpTypeSelect.onchange = function (ev) {
-        viewportType = ev.target.value;
+        options.viewport.type = ev.target.value;
         setCode();
-        cropt.options.viewport.type = viewportType;
-        cropt.refresh();
+        cropt.setOptions(options);
     };
 
     const widthRange = document.getElementById('widthRange');
-    widthRange.value = viewportWidth;
+    widthRange.value = options.viewport.width;
 
     widthRange.oninput = function (ev) {
-		viewportWidth = +ev.target.value;
-		setCode();
-		cropt.options.viewport.width = viewportWidth;
-		cropt.refresh();
+        options.viewport.width = +ev.target.value;
+        setCode();
+        cropt.setOptions(options);
     };
 
-	const heightRange = document.getElementById('heightRange');
-    heightRange.value = viewportHeight;
+    const heightRange = document.getElementById('heightRange');
+    heightRange.value = options.viewport.height;
 
     heightRange.oninput = function (ev) {
-		viewportHeight = +ev.target.value;
-		setCode();
-		cropt.options.viewport.height = viewportHeight;
-		cropt.refresh();
+        options.viewport.height = +ev.target.value;
+        setCode();
+        cropt.setOptions(options);
     };
 
-	const mouseWheelSelect = document.getElementById('mouseWheelSelect');
-	mouseWheelSelect.value = mouseWheelZoom;
+    const mouseWheelSelect = document.getElementById('mouseWheelSelect');
+    mouseWheelSelect.value = options.mouseWheelZoom;
 
     mouseWheelSelect.onchange = function (ev) {
-        mouseWheelZoom = ev.target.value;
+        options.mouseWheelZoom = ev.target.value;
         setCode();
-        cropt.options.mouseWheelZoom = mouseWheelZoom;
+        cropt.setOptions(options);
     };
 
-	/** @type {HTMLInputElement} */
-	const fileInput = document.getElementById('imgFile');
-	fileInput.value = "";
+    /** @type {HTMLInputElement} */
+    const fileInput = document.getElementById('imgFile');
+    fileInput.value = "";
 
-	fileInput.onchange = function () {
-		if (fileInput.files && fileInput.files[0]) {
-			const file = fileInput.files[0];
-			photoSrc = file.name;
-			setCode();
-			const reader = new FileReader();
+    fileInput.onchange = function () {
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            photoSrc = file.name;
+            setCode();
+            const reader = new FileReader();
  
-			reader.onload = (e) => {
-				cropt.bind(e.target.result).then(() => {
-					console.log('upload bind complete');
-				});
-			}
+            reader.onload = (e) => {
+                cropt.bind(e.target.result).then(() => {
+                    console.log('upload bind complete');
+                });
+            }
  
-			reader.readAsDataURL(file);
-		}
-	};
+            reader.readAsDataURL(file);
+        }
+    };
 
     setCode();
 }
