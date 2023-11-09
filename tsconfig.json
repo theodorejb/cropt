@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "module": "ES2022",
+        "target": "ES2022",
+        "noUnusedLocals": true,
+        "strict": true,
+        "declaration": true,
+        "lib": ["ES2019", "DOM", "DOM.Iterable"]
+    },
+    "include": ["src/*.ts"]
+}

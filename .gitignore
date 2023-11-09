@@ -1,3 +1,5 @@
 .idea/
 node_modules/
 demo/build/
+src/*.js
+src/*.d.ts

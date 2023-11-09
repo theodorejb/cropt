@@ -11,8 +11,8 @@ module.exports = function (grunt) {
                     },
                     {
                         expand: true,
-                        cwd: "",
-                        src: ["cropt.js", "cropt.css"],
+                        cwd: "src",
+                        src: ["cropt.js", "cropt.css", "demo.js"],
                         dest: "demo/build",
                     },
                 ],

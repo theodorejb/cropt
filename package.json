@@ -1,13 +1,13 @@
 {
   "name": "cropt",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A lightweight JavaScript image cropper",
   "files": [
-    "cropt.css",
-    "cropt.js"
+    "src/cropt.*"
   ],
+  "types": "./src/cropt.d.ts",
   "type": "module",
-  "main": "cropt.js",
+  "main": "./src/cropt.js",
   "devDependencies": {
     "bootstrap": "^5.3.2",
     "gh-pages": "^6.0.0",
@@ -16,11 +16,12 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-sass": "^2.0.0",
     "http-server": "^14.1.1",
-    "sass": "^1.69.5"
+    "sass": "^1.69.5",
+    "typescript": "^5.2.2"
   },
   "scripts": {
     "deploy": "gh-pages -d ./demo",
-    "prepare": "grunt --gruntfile Gruntfile.cjs",
+    "prepare": "tsc && grunt --gruntfile Gruntfile.cjs",
     "start": "http-server ./demo"
   },
   "repository": {
