@@ -6,6 +6,13 @@
     transform-origin: 0 0;
     max-height: none;
     max-width: none;
+    pointer-events: none; /* prevent image context menu on Android */
+}
+
+.cropt-container .cr-image,
+.cropt-container .cr-overlay {
+    -webkit-user-select: none; /* still necessary for Safari */
+    user-select: none;
 }
 
 .cropt-container .cr-boundary {
