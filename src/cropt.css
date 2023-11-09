@@ -23,6 +23,7 @@
 
 .cropt-container .cr-viewport {
     position: absolute;
+    box-sizing: border-box;
     border: 2px solid #fff;
     margin: auto;
     top: 0;
