@@ -1,13 +1,14 @@
-import { Cropt } from "./build/cropt.js";
-
-function popupResult(result) {
-    const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
-    const imgClass = (result.viewport === "circle") ? "rounded-circle" : "";
+import { Cropt } from "./cropt.js";
+function popupResult(src, viewport) {
+    const resultModal = new bootstrap.Modal(getElById('resultModal'));
+    const imgClass = (viewport === "circle") ? "rounded-circle" : "";
     const bodyEl = document.querySelector('#resultModal .modal-body');
-    bodyEl.innerHTML = `<img src="${result.src}" class="${imgClass}" style="max-width: 280px; max-height: 280px;" />`;
+    if (bodyEl === null) {
+        throw new Error("bodyEl is null");
+    }
+    bodyEl.innerHTML = `<img src="${src}" class="${imgClass}" style="max-width: 280px; max-height: 280px;" />`;
     resultModal.show();
 }
-
 let photos = [
     "girl-piano.jpg",
     "hiker.jpg",
@@ -15,9 +16,7 @@ let photos = [
     "toucan.jpg",
     "woman-dog.jpg",
 ];
-
 let photoSrc = "photos/" + photos[Math.floor(Math.random() * photos.length)];
-
 let options = {
     viewport: {
         width: 200,
@@ -27,10 +26,8 @@ let options = {
     mouseWheelZoom: "on",
     zoomerInputClass: "form-range",
 };
-
 function getCode() {
     const optionStr = JSON.stringify(options, undefined, 4);
-
     return `import { Cropt } from "cropt";
 
 const cropEl = document.getElementById("img-crop");
@@ -48,85 +45,73 @@ resultBtn.addEventListener("click", () => {
     });
 });`;
 }
-
+function getElById(elementId) {
+    const el = document.getElementById(elementId);
+    if (el === null) {
+        throw new Error(`${elementId} is null`);
+    }
+    return el;
+}
 function setCode() {
     const code = getCode();
-    document.getElementById('code-el').innerHTML = hljs.highlight(code, { language: 'javascript' }).value;
+    getElById('code-el').innerHTML = hljs.highlight(code, { language: 'javascript' }).value;
 }
-
-function demoMain () {
-    const cropEl = document.getElementById('cropper-1');
-    const resultBtn = document.getElementById('resultBtn');
+function demoMain() {
+    const cropEl = getElById('cropper-1');
+    const resultBtn = getElById('resultBtn');
     const cropt = new Cropt(cropEl, options);
     cropt.bind(photoSrc);
-
     resultBtn.onclick = function () {
         cropt.toCanvas(400).then(function (canvas) {
-            popupResult({
-                src: canvas.toDataURL(),
-                viewport: cropt.options.viewport.type,
-            });
+            popupResult(canvas.toDataURL(), cropt.options.viewport.type);
         });
     };
-
-    const vpTypeSelect = document.getElementById('viewportType');
+    const vpTypeSelect = getElById('viewportType');
     vpTypeSelect.value = options.viewport.type;
-
     vpTypeSelect.onchange = function (ev) {
-        options.viewport.type = ev.target.value;
+        options.viewport.type = vpTypeSelect.value;
         setCode();
         cropt.setOptions(options);
     };
-
-    const widthRange = document.getElementById('widthRange');
-    widthRange.value = options.viewport.width;
-
+    const widthRange = getElById('widthRange');
+    widthRange.value = options.viewport.width.toString();
     widthRange.oninput = function (ev) {
-        options.viewport.width = +ev.target.value;
+        options.viewport.width = +widthRange.value;
         setCode();
         cropt.setOptions(options);
     };
-
-    const heightRange = document.getElementById('heightRange');
-    heightRange.value = options.viewport.height;
-
+    const heightRange = getElById('heightRange');
+    heightRange.value = options.viewport.height.toString();
     heightRange.oninput = function (ev) {
-        options.viewport.height = +ev.target.value;
+        options.viewport.height = +heightRange.value;
         setCode();
         cropt.setOptions(options);
     };
-
-    const mouseWheelSelect = document.getElementById('mouseWheelSelect');
+    const mouseWheelSelect = getElById('mouseWheelSelect');
     mouseWheelSelect.value = options.mouseWheelZoom;
-
     mouseWheelSelect.onchange = function (ev) {
-        options.mouseWheelZoom = ev.target.value;
+        options.mouseWheelZoom = mouseWheelSelect.value;
         setCode();
         cropt.setOptions(options);
     };
-
-    /** @type {HTMLInputElement} */
-    const fileInput = document.getElementById('imgFile');
+    const fileInput = getElById('imgFile');
     fileInput.value = "";
-
     fileInput.onchange = function () {
         if (fileInput.files && fileInput.files[0]) {
             const file = fileInput.files[0];
             photoSrc = file.name;
             setCode();
             const reader = new FileReader();
- 
             reader.onload = (e) => {
-                cropt.bind(e.target.result).then(() => {
-                    console.log('upload bind complete');
-                });
-            }
- 
+                if (typeof e.target?.result === "string") {
+                    cropt.bind(e.target.result).then(() => {
+                        console.log('upload bind complete');
+                    });
+                }
+            };
             reader.readAsDataURL(file);
         }
     };
-
     setCode();
 }
-
 demoMain();
