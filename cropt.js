@@ -116,6 +116,20 @@ function loadImage(src) {
     });
 }
 
+/**
+ * @typedef {object} ViewportOption
+ * @property {number} [width=200]
+ * @property {number} [height=200]
+ * @property {"square" | "circle"} [type="square"]
+ */
+
+/**
+ * @typedef {object} CroptOptions
+ * @property {"off" | "on" | "ctrl"} [mouseWheelZoom="on"]
+ * @property {ViewportOption=} viewport
+ * @property {string=} zoomerInputClass
+ */
+
 export class Cropt {
     static defaults = {
         viewport: {
@@ -129,6 +143,7 @@ export class Cropt {
 
     /**
      * @param {HTMLElement} element
+     * @param {CroptOptions} options
      */
     constructor(element, options) {
         if (element.classList.contains('cropt-container')) {
@@ -232,10 +247,13 @@ export class Cropt {
         this.#updatePropertiesFromImage();
     }
 
+    /**
+     * @param {CroptOptions} options
+     */
     setOptions(options) {
         const curWidth = this.options.viewport.width;
         const curHeight = this.options.viewport.height;
-        
+
         this.options = deepExtend(this.options, options);
         this.#setOptionsCss();
 
