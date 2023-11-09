@@ -6,6 +6,8 @@
     transform-origin: 0 0;
     max-height: none;
     max-width: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .cropt-container .cr-boundary {
