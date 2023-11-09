@@ -45,6 +45,8 @@
     position: absolute;
     cursor: move;
     touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .cropt-container .cr-slider-wrap {
