@@ -13,26 +13,9 @@ class Transform {
         return 'translate(' + this.x + 'px, ' + this.y + 'px' + ') scale(' + this.scale + ')';
     }
 
-    static parse(v: HTMLImageElement) {
-        const transform = v.style.transform;
+    static parse(img: HTMLImageElement) {
+        const v = img.style.transform;
 
-        if (transform.includes('matrix') || transform.includes('none')) {
-            return Transform.fromMatrix(transform);
-        } else {
-            return Transform.fromString(transform);
-        }
-    }
-
-    static fromMatrix(v: string) {
-        var vals = v.substring(7).split(',');
-        if (!vals.length || v === 'none') {
-            vals = ["1", "0", "0", "1", "0", "0"];
-        }
-    
-        return new Transform(num(vals[4]), num(vals[5]), parseFloat(vals[0]));
-    }
-
-    static fromString(v: string) {
         var values = v.split(') '),
         translate = values[0].substring("translate".length + 1).split(','),
         scale = values.length > 1 ? values[1].substring(6) : "1",
@@ -71,12 +54,15 @@ function debounce<T extends Function>(func: T, wait: number) {
     };
 }
 
-function num(v: string) {
-    return parseInt(v, 10);
-}
-
 function fix(value: number, decimalPoints: number) {
     return value.toFixed(decimalPoints);
+}
+
+function setZoomerVal(value: number, zoomer: HTMLInputElement) {
+    const zMin = parseFloat(zoomer.min);
+    const zMax = parseFloat(zoomer.max);
+
+    zoomer.value = fix(Math.max(zMin, Math.min(zMax, value)), 3);
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -100,6 +86,18 @@ function getInitialElements() {
         zoomerWrap: document.createElement('div'),
         zoomer: document.createElement('input'),
     };
+}
+
+function getArrowKeyDeltas(key: string): [number, number] {
+    if (key === "ArrowLeft") {
+        return [2, 0];
+    } else if (key === "ArrowUp") {
+        return [0, 2];
+    } else if (key === "ArrowRight") {
+        return [-2, 0];
+    } else {
+        return [0, -2];
+    }
 }
 
 type RecursivePartial<T> = {
@@ -145,6 +143,9 @@ export class Cropt {
     #boundZoom: number | null = null;
     #scale = 1;
     #keyDownHandler: ((ev: KeyboardEvent) => void) | null = null;
+    #updateOverlayDebounced = debounce(() => {
+        this.#updateOverlay();
+    }, 200);
 
     constructor(element: HTMLElement, options: RecursivePartial<CroptOptions>) {
         if (element.classList.contains('cropt-container')) {
@@ -165,10 +166,9 @@ export class Cropt {
         this.elements.viewport.classList.add('cr-viewport');
         this.elements.overlay.classList.add('cr-overlay');
 
-        this.elements.boundary.setAttribute('aria-dropeffect', 'none');
         this.elements.viewport.setAttribute('tabindex', "0");
         this.#setPreviewAttributes(this.elements.preview);
-        
+
         this.elements.boundary.appendChild(this.elements.preview);
         this.elements.boundary.appendChild(this.elements.viewport);
         this.elements.boundary.appendChild(this.elements.overlay);
@@ -213,10 +213,6 @@ export class Cropt {
             heightDiff = (vpData.height - this.elements.viewport.offsetHeight) / 2,
             x2 = x1 + this.elements.viewport.offsetWidth + widthDiff,
             y2 = y1 + this.elements.viewport.offsetHeight + heightDiff;
-
-        if (this.#scale === Infinity) {
-            this.#scale = 1;
-        }
 
         x1 = Math.max(0, x1 / this.#scale);
         y1 = Math.max(0, y1 / this.#scale);
@@ -290,9 +286,9 @@ export class Cropt {
     }
 
     setZoom(value: number) {
-        this.#setZoomerVal(value);
+        setZoomerVal(value, this.elements.zoomer);
         var event = new Event('input');
-        this.elements.zoomer.dispatchEvent(event);
+        this.elements.zoomer.dispatchEvent(event); // triggers this.#onZoom call
     }
 
     destroy() {
@@ -371,8 +367,9 @@ export class Cropt {
         return canvas;
     }
 
-    #getVirtualBoundaries(viewport: DOMRect) {
+    #getVirtualBoundaries() {
         var scale = this.#scale,
+            viewport = this.elements.viewport.getBoundingClientRect(),
             vpWidth = viewport.width,
             vpHeight = viewport.height,
             centerFromBoundaryX = this.elements.boundary.clientWidth / 2,
@@ -431,11 +428,6 @@ export class Cropt {
             }
         };
 
-        let toggleGrabState = (isDragging: boolean) => {
-            this.elements.preview.setAttribute('aria-grabbed', isDragging.toString());
-            this.elements.boundary.setAttribute('aria-dropeffect', isDragging ? 'move': 'none');
-        };
-
         let pEventCache: PointerEvent[] = [];
         let origPinchDistance = 0;
 
@@ -466,7 +458,7 @@ export class Cropt {
             assignTransformCoordinates(deltaX, deltaY);
             this.elements.preview.style.transform = transform.toString();
 
-            this.#updateOverlay();
+            this.#updateOverlayDebounced();
             originalX = ev.pageX;
             originalY = ev.pageY;
         };
@@ -481,7 +473,7 @@ export class Cropt {
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointercancel', pointerUp);
 
-                toggleGrabState(false);
+                this.#setDragState(false, this.elements.preview);
                 this.#updateCenterPoint();
                 origPinchDistance = 0;
             }
@@ -502,7 +494,7 @@ export class Cropt {
 
             originalX = ev.pageX;
             originalY = ev.pageY;
-            toggleGrabState(true);
+            this.#setDragState(true, this.elements.preview);
             transform = Transform.parse(this.elements.preview);
             vpRect = this.elements.viewport.getBoundingClientRect();
 
@@ -523,27 +515,15 @@ export class Cropt {
                 this.setZoom(zoomVal + stepVal);
             } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)) {
                 ev.preventDefault();
-                let [deltaX, deltaY] = getMovement(ev.key);
+                let [deltaX, deltaY] = getArrowKeyDeltas(ev.key);
 
                 transform = Transform.parse(this.elements.preview);
                 vpRect = this.elements.viewport.getBoundingClientRect();
                 assignTransformCoordinates(deltaX, deltaY);
                 this.elements.preview.style.transform = transform.toString();
 
-                this.#updateOverlay();
+                this.#updateOverlayDebounced();
                 this.#updateCenterPoint();
-            }
-
-            function getMovement(key: string): [number, number] {
-                if (key === "ArrowLeft") {
-                    return [2, 0];
-                } else if (key === "ArrowUp") {
-                    return [0, 2];
-                } else if (key === "ArrowRight") {
-                    return [-2, 0];
-                } else {
-                    return [0, -2];
-                }
             }
         };
 
@@ -554,12 +534,7 @@ export class Cropt {
 
     #initializeZoom() {
         let change = () => {
-            this.#onZoom({
-                value: parseFloat(this.elements.zoomer.value),
-                origin: new TransformOrigin(this.elements.preview),
-                viewportRect: this.elements.viewport.getBoundingClientRect(),
-                transform: Transform.parse(this.elements.preview)
-            });
+            this.#onZoom();
         };
 
         let scroll = (ev: WheelEvent) => {
@@ -573,36 +548,27 @@ export class Cropt {
             }
 
             ev.preventDefault();
-            this.#setZoomerVal(this.#scale + (delta * this.#scale));
-            change();
+            this.setZoom(this.#scale + (delta * this.#scale));
         };
 
         this.elements.zoomer.addEventListener('input', change);
         this.elements.boundary.addEventListener('wheel', scroll);
     }
 
-    #setZoomerVal(val: number) {
-        var z = this.elements.zoomer;
-        var zMin = parseFloat(z.min);
-        var zMax = parseFloat(z.max);
-
-        z.value = fix(Math.max(zMin, Math.min(zMax, val)), 3);
-    }
-
-    #onZoom(ui: {value: number, origin: TransformOrigin, viewportRect: DOMRect, transform: Transform}) {
-        var transform = ui.transform;
-        var origin = ui.origin;
+    #onZoom() {
+        const transform = Transform.parse(this.elements.preview);
+        const origin = new TransformOrigin(this.elements.preview);
 
         let applyCss = () => {
             this.elements.preview.style.transform = transform.toString();
             this.elements.preview.style.transformOrigin = origin.toString();
         };
 
-        this.#scale = ui.value;
+        this.#scale = parseFloat(this.elements.zoomer.value);
         transform.scale = this.#scale;
         applyCss();
 
-        var boundaries = this.#getVirtualBoundaries(ui.viewportRect),
+        var boundaries = this.#getVirtualBoundaries(),
             transBoundaries = boundaries.translate,
             oBoundaries = boundaries.origin;
 
@@ -627,10 +593,7 @@ export class Cropt {
         }
 
         applyCss();
-
-        (debounce(() => {
-            this.#updateOverlay();
-        }, 500))();
+        this.#updateOverlayDebounced();
     }
 
     #replaceImage(img: HTMLImageElement) {
@@ -644,7 +607,12 @@ export class Cropt {
     #setPreviewAttributes(preview: HTMLImageElement) {
         preview.classList.add('cr-image');
         preview.setAttribute('alt', 'preview');
-        preview.setAttribute('aria-grabbed', 'false');
+        this.#setDragState(false, preview);
+    }
+
+    #setDragState(isDragging: boolean, preview: HTMLImageElement) {
+        preview.setAttribute('aria-grabbed', isDragging.toString());
+        this.elements.boundary.setAttribute('aria-dropeffect', isDragging ? 'move': 'none');
     }
 
     #isVisible() {
