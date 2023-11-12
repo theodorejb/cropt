@@ -312,8 +312,7 @@ export class Cropt {
         if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
             transform.x = transform.x + deltaX;
         }
-        this.elements.preview.style.transform = transform.toString();
-        this.#updateCenterPoint();
+        this.#updateCenterPoint(transform);
         this.#updateOverlayDebounced();
     }
     #initDraggable() {
@@ -482,17 +481,15 @@ export class Cropt {
         preview.style.transform = transformReset.toString();
         preview.style.transformOrigin = new TransformOrigin().toString();
         this.#centerImage();
-        this.#updateCenterPoint();
         this.#updateOverlay();
     }
-    #updateCenterPoint() {
+    #updateCenterPoint(transform) {
         var scale = this.#scale, data = this.elements.preview.getBoundingClientRect(), vpData = this.elements.viewport.getBoundingClientRect(), pc = new TransformOrigin(this.elements.preview), top = (vpData.top - data.top) + (vpData.height / 2), left = (vpData.left - data.left) + (vpData.width / 2);
         var center = { x: left / scale, y: top / scale };
         var adj = {
             x: (center.x - pc.x) * (1 - scale),
             y: (center.y - pc.y) * (1 - scale),
         };
-        const transform = Transform.parse(this.elements.preview);
         transform.x -= adj.x;
         transform.y -= adj.y;
         this.elements.preview.style.transform = transform.toString();
@@ -510,6 +507,6 @@ export class Cropt {
     }
     #centerImage() {
         var imgDim = this.elements.preview.getBoundingClientRect(), vpDim = this.elements.viewport.getBoundingClientRect(), boundDim = this.elements.boundary.getBoundingClientRect(), vpLeft = vpDim.left - boundDim.left, vpTop = vpDim.top - boundDim.top, w = vpLeft - ((imgDim.width - vpDim.width) / 2), h = vpTop - ((imgDim.height - vpDim.height) / 2), transform = new Transform(w, h, this.#scale);
-        this.elements.preview.style.transform = transform.toString();
+        this.#updateCenterPoint(transform);
     }
 }
