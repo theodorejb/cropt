@@ -408,26 +408,26 @@ export class Cropt {
         };
     }
 
+    #assignTransformCoordinates(deltaX: number, deltaY: number) {
+        const imgRect = this.elements.preview.getBoundingClientRect();
+        const vpRect = this.elements.viewport.getBoundingClientRect();
+        const transform = Transform.parse(this.elements.preview);
+
+        if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
+            transform.y = transform.y + deltaY;
+        }
+
+        if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
+            transform.x = transform.x + deltaX;
+        }
+
+        this.#updateCenterPoint(transform);
+        this.#updateOverlayDebounced();
+    }
+
     #initDraggable() {
-        var originalX = 0;
-        var originalY = 0;
-        var transform: Transform;
-        var vpRect: DOMRect;
-
-        let assignTransformCoordinates = (deltaX: number, deltaY: number) => {
-            var imgRect = this.elements.preview.getBoundingClientRect(),
-                top = transform.y + deltaY,
-                left = transform.x + deltaX;
-
-            if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-                transform.y = top;
-            }
-
-            if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
-                transform.x = left;
-            }
-        };
-
+        let originalX = 0;
+        let originalY = 0;
         let pEventCache: PointerEvent[] = [];
         let origPinchDistance = 0;
 
@@ -453,12 +453,7 @@ export class Cropt {
                 return; // ignore single pointer movement after pinch zoom
             }
 
-            let deltaX = ev.pageX - originalX;
-            let deltaY = ev.pageY - originalY;
-            assignTransformCoordinates(deltaX, deltaY);
-            this.elements.preview.style.transform = transform.toString();
-
-            this.#updateOverlayDebounced();
+            this.#assignTransformCoordinates(ev.pageX - originalX, ev.pageY - originalY);
             originalX = ev.pageX;
             originalY = ev.pageY;
         };
@@ -474,7 +469,6 @@ export class Cropt {
                 this.elements.overlay.removeEventListener('pointercancel', pointerUp);
 
                 this.#setDragState(false, this.elements.preview);
-                this.#updateCenterPoint();
                 origPinchDistance = 0;
             }
         };
@@ -495,8 +489,6 @@ export class Cropt {
             originalX = ev.pageX;
             originalY = ev.pageY;
             this.#setDragState(true, this.elements.preview);
-            transform = Transform.parse(this.elements.preview);
-            vpRect = this.elements.viewport.getBoundingClientRect();
 
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
@@ -516,14 +508,7 @@ export class Cropt {
             } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)) {
                 ev.preventDefault();
                 let [deltaX, deltaY] = getArrowKeyDeltas(ev.key);
-
-                transform = Transform.parse(this.elements.preview);
-                vpRect = this.elements.viewport.getBoundingClientRect();
-                assignTransformCoordinates(deltaX, deltaY);
-                this.elements.preview.style.transform = transform.toString();
-
-                this.#updateOverlayDebounced();
-                this.#updateCenterPoint();
+                this.#assignTransformCoordinates(deltaX, deltaY);
             }
         };
 
@@ -646,11 +631,10 @@ export class Cropt {
         preview.style.transformOrigin = new TransformOrigin().toString();
 
         this.#centerImage();
-        this.#updateCenterPoint();
         this.#updateOverlay();
     }
 
-    #updateCenterPoint() {
+    #updateCenterPoint(transform: Transform) {
         var scale = this.#scale,
             data = this.elements.preview.getBoundingClientRect(),
             vpData = this.elements.viewport.getBoundingClientRect(),
@@ -664,7 +648,6 @@ export class Cropt {
             y: (center.y - pc.y) * (1 - scale),
         };
 
-        const transform = Transform.parse(this.elements.preview);
         transform.x -= adj.x;
         transform.y -= adj.y;
 
@@ -702,6 +685,6 @@ export class Cropt {
             h = vpTop - ((imgDim.height - vpDim.height) / 2),
             transform = new Transform(w, h, this.#scale);
 
-        this.elements.preview.style.transform = transform.toString();
+        this.#updateCenterPoint(transform);
     }
 }
