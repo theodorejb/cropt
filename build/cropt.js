@@ -10,23 +10,8 @@ class Transform {
     toString() {
         return 'translate(' + this.x + 'px, ' + this.y + 'px' + ') scale(' + this.scale + ')';
     }
-    static parse(v) {
-        const transform = v.style.transform;
-        if (transform.includes('matrix') || transform.includes('none')) {
-            return Transform.fromMatrix(transform);
-        }
-        else {
-            return Transform.fromString(transform);
-        }
-    }
-    static fromMatrix(v) {
-        var vals = v.substring(7).split(',');
-        if (!vals.length || v === 'none') {
-            vals = ["1", "0", "0", "1", "0", "0"];
-        }
-        return new Transform(num(vals[4]), num(vals[5]), parseFloat(vals[0]));
-    }
-    static fromString(v) {
+    static parse(img) {
+        const v = img.style.transform;
         var values = v.split(') '), translate = values[0].substring("translate".length + 1).split(','), scale = values.length > 1 ? values[1].substring(6) : "1", x = translate.length > 1 ? translate[0] : "0", y = translate.length > 1 ? translate[1] : "0";
         return new Transform(parseFloat(x), parseFloat(y), parseFloat(scale));
     }
@@ -55,11 +40,13 @@ function debounce(func, wait) {
         timer = setTimeout(() => func(...args), wait);
     };
 }
-function num(v) {
-    return parseInt(v, 10);
-}
 function fix(value, decimalPoints) {
     return value.toFixed(decimalPoints);
+}
+function setZoomerVal(value, zoomer) {
+    const zMin = parseFloat(zoomer.min);
+    const zMax = parseFloat(zoomer.max);
+    zoomer.value = fix(Math.max(zMin, Math.min(zMax, value)), 3);
 }
 function loadImage(src) {
     var img = new Image();
@@ -81,6 +68,20 @@ function getInitialElements() {
         zoomer: document.createElement('input'),
     };
 }
+function getArrowKeyDeltas(key) {
+    if (key === "ArrowLeft") {
+        return [2, 0];
+    }
+    else if (key === "ArrowUp") {
+        return [0, 2];
+    }
+    else if (key === "ArrowRight") {
+        return [-2, 0];
+    }
+    else {
+        return [0, -2];
+    }
+}
 export class Cropt {
     element;
     elements;
@@ -96,6 +97,9 @@ export class Cropt {
     #boundZoom = null;
     #scale = 1;
     #keyDownHandler = null;
+    #updateOverlayDebounced = debounce(() => {
+        this.#updateOverlay();
+    }, 200);
     constructor(element, options) {
         if (element.classList.contains('cropt-container')) {
             throw new Error("Cropt is already initialized on this element");
@@ -111,7 +115,6 @@ export class Cropt {
         this.elements.boundary.classList.add('cr-boundary');
         this.elements.viewport.classList.add('cr-viewport');
         this.elements.overlay.classList.add('cr-overlay');
-        this.elements.boundary.setAttribute('aria-dropeffect', 'none');
         this.elements.viewport.setAttribute('tabindex', "0");
         this.#setPreviewAttributes(this.elements.preview);
         this.elements.boundary.appendChild(this.elements.preview);
@@ -145,9 +148,6 @@ export class Cropt {
     #getPoints() {
         var imgData = this.elements.preview.getBoundingClientRect(), vpData = this.elements.viewport.getBoundingClientRect(), x1 = vpData.left - imgData.left, y1 = vpData.top - imgData.top, widthDiff = (vpData.width - this.elements.viewport.offsetWidth) / 2, //border
         heightDiff = (vpData.height - this.elements.viewport.offsetHeight) / 2, x2 = x1 + this.elements.viewport.offsetWidth + widthDiff, y2 = y1 + this.elements.viewport.offsetHeight + heightDiff;
-        if (this.#scale === Infinity) {
-            this.#scale = 1;
-        }
         x1 = Math.max(0, x1 / this.#scale);
         y1 = Math.max(0, y1 / this.#scale);
         x2 = Math.max(0, x2 / this.#scale);
@@ -211,9 +211,9 @@ export class Cropt {
         }
     }
     setZoom(value) {
-        this.#setZoomerVal(value);
+        setZoomerVal(value, this.elements.zoomer);
         var event = new Event('input');
-        this.elements.zoomer.dispatchEvent(event);
+        this.elements.zoomer.dispatchEvent(event); // triggers this.#onZoom call
     }
     destroy() {
         if (this.#keyDownHandler) {
@@ -277,8 +277,8 @@ export class Cropt {
         ctx.drawImage(oc, 0, 0, cur.width, cur.height, 0, 0, canvas.width, canvas.height);
         return canvas;
     }
-    #getVirtualBoundaries(viewport) {
-        var scale = this.#scale, vpWidth = viewport.width, vpHeight = viewport.height, centerFromBoundaryX = this.elements.boundary.clientWidth / 2, centerFromBoundaryY = this.elements.boundary.clientHeight / 2, imgRect = this.elements.preview.getBoundingClientRect(), curImgWidth = imgRect.width, curImgHeight = imgRect.height, halfWidth = vpWidth / 2, halfHeight = vpHeight / 2;
+    #getVirtualBoundaries() {
+        var scale = this.#scale, viewport = this.elements.viewport.getBoundingClientRect(), vpWidth = viewport.width, vpHeight = viewport.height, centerFromBoundaryX = this.elements.boundary.clientWidth / 2, centerFromBoundaryY = this.elements.boundary.clientHeight / 2, imgRect = this.elements.preview.getBoundingClientRect(), curImgWidth = imgRect.width, curImgHeight = imgRect.height, halfWidth = vpWidth / 2, halfHeight = vpHeight / 2;
         var maxX = ((halfWidth / scale) - centerFromBoundaryX) * -1;
         var minX = maxX - ((curImgWidth * (1 / scale)) - (vpWidth * (1 / scale)));
         var maxY = ((halfHeight / scale) - centerFromBoundaryY) * -1;
@@ -302,24 +302,23 @@ export class Cropt {
             }
         };
     }
+    #assignTransformCoordinates(deltaX, deltaY) {
+        const imgRect = this.elements.preview.getBoundingClientRect();
+        const vpRect = this.elements.viewport.getBoundingClientRect();
+        const transform = Transform.parse(this.elements.preview);
+        if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
+            transform.y = transform.y + deltaY;
+        }
+        if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
+            transform.x = transform.x + deltaX;
+        }
+        this.elements.preview.style.transform = transform.toString();
+        this.#updateCenterPoint();
+        this.#updateOverlayDebounced();
+    }
     #initDraggable() {
-        var originalX = 0;
-        var originalY = 0;
-        var transform;
-        var vpRect;
-        let assignTransformCoordinates = (deltaX, deltaY) => {
-            var imgRect = this.elements.preview.getBoundingClientRect(), top = transform.y + deltaY, left = transform.x + deltaX;
-            if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-                transform.y = top;
-            }
-            if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
-                transform.x = left;
-            }
-        };
-        let toggleGrabState = (isDragging) => {
-            this.elements.preview.setAttribute('aria-grabbed', isDragging.toString());
-            this.elements.boundary.setAttribute('aria-dropeffect', isDragging ? 'move' : 'none');
-        };
+        let originalX = 0;
+        let originalY = 0;
         let pEventCache = [];
         let origPinchDistance = 0;
         let pointerMove = (ev) => {
@@ -340,11 +339,7 @@ export class Cropt {
             else if (origPinchDistance !== 0) {
                 return; // ignore single pointer movement after pinch zoom
             }
-            let deltaX = ev.pageX - originalX;
-            let deltaY = ev.pageY - originalY;
-            assignTransformCoordinates(deltaX, deltaY);
-            this.elements.preview.style.transform = transform.toString();
-            this.#updateOverlay();
+            this.#assignTransformCoordinates(ev.pageX - originalX, ev.pageY - originalY);
             originalX = ev.pageX;
             originalY = ev.pageY;
         };
@@ -356,8 +351,7 @@ export class Cropt {
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointercancel', pointerUp);
-                toggleGrabState(false);
-                this.#updateCenterPoint();
+                this.#setDragState(false, this.elements.preview);
                 origPinchDistance = 0;
             }
         };
@@ -373,9 +367,7 @@ export class Cropt {
             }
             originalX = ev.pageX;
             originalY = ev.pageY;
-            toggleGrabState(true);
-            transform = Transform.parse(this.elements.preview);
-            vpRect = this.elements.viewport.getBoundingClientRect();
+            this.#setDragState(true, this.elements.preview);
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
             this.elements.overlay.addEventListener('pointercancel', pointerUp);
@@ -392,27 +384,8 @@ export class Cropt {
             }
             else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)) {
                 ev.preventDefault();
-                let [deltaX, deltaY] = getMovement(ev.key);
-                transform = Transform.parse(this.elements.preview);
-                vpRect = this.elements.viewport.getBoundingClientRect();
-                assignTransformCoordinates(deltaX, deltaY);
-                this.elements.preview.style.transform = transform.toString();
-                this.#updateOverlay();
-                this.#updateCenterPoint();
-            }
-            function getMovement(key) {
-                if (key === "ArrowLeft") {
-                    return [2, 0];
-                }
-                else if (key === "ArrowUp") {
-                    return [0, 2];
-                }
-                else if (key === "ArrowRight") {
-                    return [-2, 0];
-                }
-                else {
-                    return [0, -2];
-                }
+                let [deltaX, deltaY] = getArrowKeyDeltas(ev.key);
+                this.#assignTransformCoordinates(deltaX, deltaY);
             }
         };
         this.elements.overlay.addEventListener('pointerdown', pointerDown);
@@ -421,12 +394,7 @@ export class Cropt {
     }
     #initializeZoom() {
         let change = () => {
-            this.#onZoom({
-                value: parseFloat(this.elements.zoomer.value),
-                origin: new TransformOrigin(this.elements.preview),
-                viewportRect: this.elements.viewport.getBoundingClientRect(),
-                transform: Transform.parse(this.elements.preview)
-            });
+            this.#onZoom();
         };
         let scroll = (ev) => {
             const optionVal = this.options.mouseWheelZoom;
@@ -438,29 +406,22 @@ export class Cropt {
                 delta = ev.deltaY * -1 / 2000;
             }
             ev.preventDefault();
-            this.#setZoomerVal(this.#scale + (delta * this.#scale));
-            change();
+            this.setZoom(this.#scale + (delta * this.#scale));
         };
         this.elements.zoomer.addEventListener('input', change);
         this.elements.boundary.addEventListener('wheel', scroll);
     }
-    #setZoomerVal(val) {
-        var z = this.elements.zoomer;
-        var zMin = parseFloat(z.min);
-        var zMax = parseFloat(z.max);
-        z.value = fix(Math.max(zMin, Math.min(zMax, val)), 3);
-    }
-    #onZoom(ui) {
-        var transform = ui.transform;
-        var origin = ui.origin;
+    #onZoom() {
+        const transform = Transform.parse(this.elements.preview);
+        const origin = new TransformOrigin(this.elements.preview);
         let applyCss = () => {
             this.elements.preview.style.transform = transform.toString();
             this.elements.preview.style.transformOrigin = origin.toString();
         };
-        this.#scale = ui.value;
+        this.#scale = parseFloat(this.elements.zoomer.value);
         transform.scale = this.#scale;
         applyCss();
-        var boundaries = this.#getVirtualBoundaries(ui.viewportRect), transBoundaries = boundaries.translate, oBoundaries = boundaries.origin;
+        var boundaries = this.#getVirtualBoundaries(), transBoundaries = boundaries.translate, oBoundaries = boundaries.origin;
         if (transform.x >= transBoundaries.maxX) {
             origin.x = oBoundaries.minX;
             transform.x = transBoundaries.maxX;
@@ -478,9 +439,7 @@ export class Cropt {
             transform.y = transBoundaries.minY;
         }
         applyCss();
-        (debounce(() => {
-            this.#updateOverlay();
-        }, 500))();
+        this.#updateOverlayDebounced();
     }
     #replaceImage(img) {
         this.#setPreviewAttributes(img);
@@ -492,7 +451,11 @@ export class Cropt {
     #setPreviewAttributes(preview) {
         preview.classList.add('cr-image');
         preview.setAttribute('alt', 'preview');
-        preview.setAttribute('aria-grabbed', 'false');
+        this.#setDragState(false, preview);
+    }
+    #setDragState(isDragging, preview) {
+        preview.setAttribute('aria-grabbed', isDragging.toString());
+        this.elements.boundary.setAttribute('aria-dropeffect', isDragging ? 'move' : 'none');
     }
     #isVisible() {
         return this.elements.preview.offsetParent !== null;
