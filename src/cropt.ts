@@ -100,6 +100,13 @@ function getArrowKeyDeltas(key: string): [number, number] {
     }
 }
 
+function canvasSupportsWebP() {
+    // https://caniuse.com/mdn-api_htmlcanvaselement_toblob_type_parameter_webp
+    return document.createElement('canvas')
+        .toDataURL('image/webp')
+        .startsWith('data:image/webp');
+}
+
 type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
 };
@@ -252,6 +259,10 @@ export class Cropt {
     }
 
     toBlob(size: number | null = null, type = "image/webp", quality = 1): Promise<Blob> {
+        if (type === "image/webp" && quality < 1 && !canvasSupportsWebP()) {
+            type = "image/jpeg";
+        }
+
         return new Promise((resolve, reject) => {
             this.toCanvas(size).then((canvas) => {
                 canvas.toBlob((blob) => {
