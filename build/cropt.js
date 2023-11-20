@@ -82,6 +82,12 @@ function getArrowKeyDeltas(key) {
         return [0, -2];
     }
 }
+function canvasSupportsWebP() {
+    // https://caniuse.com/mdn-api_htmlcanvaselement_toblob_type_parameter_webp
+    return document.createElement('canvas')
+        .toDataURL('image/webp')
+        .startsWith('data:image/webp');
+}
 export class Cropt {
     element;
     elements;
@@ -182,6 +188,9 @@ export class Cropt {
         return Promise.resolve(this.#getCanvas(points, width, height));
     }
     toBlob(size = null, type = "image/webp", quality = 1) {
+        if (type === "image/webp" && quality < 1 && !canvasSupportsWebP()) {
+            type = "image/jpeg";
+        }
         return new Promise((resolve, reject) => {
             this.toCanvas(size).then((canvas) => {
                 canvas.toBlob((blob) => {
