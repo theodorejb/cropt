@@ -24,6 +24,8 @@ let photos = [
     "woman-dog.jpg",
 ];
 
+const cropElId = "crop-demo";
+const resultBtnId = "result-btn";
 let photoSrc = "photos/" + photos[Math.floor(Math.random() * photos.length)];
 
 let options: CroptOptions = {
@@ -41,8 +43,8 @@ function getCode() {
 
     return `import { Cropt } from "cropt";
 
-const cropEl = document.getElementById("img-crop");
-const resultBtn = document.getElementById("result-btn");
+const cropEl = document.getElementById("${cropElId}");
+const resultBtn = document.getElementById("${resultBtnId}");
 
 const cropt = new Cropt(cropEl, ${optionStr});
 
@@ -73,8 +75,8 @@ function setCode() {
 }
 
 function demoMain () {
-    const cropEl = getElById('cropper-1');
-    const resultBtn = getElById('resultBtn');
+    const cropEl = getElById(cropElId);
+    const resultBtn = getElById(resultBtnId);
     const cropt = new Cropt(cropEl, options);
     cropt.bind(photoSrc);
 
