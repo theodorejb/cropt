@@ -2,6 +2,8 @@
 
 Originally based on [Foliotek/Croppie](https://github.com/Foliotek/Croppie), but rewritten as a modern ES module with a simpler API, higher quality image scaling, and numerous other improvements.
 
+Demo: https://theodorejb.github.io/cropt/
+
 ## Installation
 
 ```
@@ -10,7 +12,7 @@ npm install cropt
 
 ## Usage
 
-1. Include the `cropt.css` stylesheet on your page.
+1. Include the `src/cropt.css` stylesheet on your page.
 2. Add a `div` element to your HTML to hold the Cropt instance.
 3. Import Cropt and bind it to an image:
 
@@ -20,6 +22,11 @@ import { Cropt } from "cropt";
 let c = new Cropt(document.getElementById('demo'), options);
 c.bind("path/to/image.jpg");
 ```
+
+### Sizing
+
+The Cropt boundary defaults to 300px wide and 300px high.
+To customize this, override the `.cropt-container .cr-boundary` width and height via CSS.
 
 ## Options
 
@@ -89,6 +96,8 @@ myModal.addEventListener('shown.bs.modal', () => {
 ```
 
 If you have issues getting the correct result, and your Cropt instance is shown inside a modal, try taking it out of the modal and see if the issue persists. If not, make sure that your bind method is called after the modal finishes opening.
+
+If a Cropt instance needs to be hidden and then re-shown, call the `refresh()` method to recalculate properties for the displayed image.
 
 ## Browser support
 
