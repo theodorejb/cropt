@@ -1,11 +1,19 @@
 # Changelog
 
+## [0.8.8] - 2023-11-21
+
+### Fixed
+- Correctly handle uncached pointer move events.
+    - Resolves janky behavior in Safari when a pinch zoom is initiated with one pointer outside the preview image.
+
+### Changed
+- Slightly increased default boundary and viewport size.
+
+
 ## [0.8.6] - 2023-11-14
 
 ### Changed
 - For browsers that don't support WebP output (Safari), fall back to JPEG instead of PNG when `quality < 1` to avoid unexpectedly large files.
-
-(v0.8.5 was skipped due to a mistake when publishing).
 
 
 ## [0.8.4] - 2023-11-12
@@ -46,6 +54,7 @@ This is the initial pre-release after forking from [Foliotek/Croppie](https://gi
 - `showZoomer` option (hide via CSS instead if desired).
 
 
-[Unreleased]: https://github.com/theodorejb/cropt/compare/v0.8.6...HEAD
+[Unreleased]: https://github.com/theodorejb/cropt/compare/v0.8.8...HEAD
+[0.8.8]: https://github.com/theodorejb/cropt/compare/v0.8.6...v0.8.8
 [0.8.6]: https://github.com/theodorejb/cropt/compare/v0.8.4...v0.8.6
 [0.8.4]: https://github.com/theodorejb/cropt/releases/tag/v0.8.4

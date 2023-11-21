@@ -25,7 +25,7 @@ c.bind("path/to/image.jpg");
 
 ### Sizing
 
-The Cropt boundary defaults to 300px wide and 300px high.
+The Cropt boundary defaults to 320px wide and 320px high.
 To customize this, override the `.cropt-container .cr-boundary` width and height via CSS.
 
 ## Options
@@ -40,7 +40,7 @@ If set to `"off"`, the mouse wheel cannot be used to zoom in and out of the imag
 ### `viewport`
 
 Type: `{ width: number, height: number, type: "square" | "circle" }`  
-Default value: `{ width: 200, height: 200, type: "square" }`
+Default value: `{ width: 220, height: 220, type: "square" }`
 
 Defines the size and shape of the crop box.
 
