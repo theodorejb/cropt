@@ -360,12 +360,13 @@ export class Cropt {
         };
         let pointerUp = (ev) => {
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
-            pEventCache.splice(cacheIndex, 1);
-            this.elements.overlay.releasePointerCapture(ev.pointerId);
+            if (cacheIndex !== -1) {
+                pEventCache.splice(cacheIndex, 1);
+            }
             if (pEventCache.length === 0) {
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
-                this.elements.overlay.removeEventListener('pointercancel', pointerUp);
+                this.elements.overlay.removeEventListener('pointerout', pointerUp);
                 this.#setDragState(false, this.elements.preview);
                 origPinchDistance = 0;
             }
@@ -385,7 +386,7 @@ export class Cropt {
             this.#setDragState(true, this.elements.preview);
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
-            this.elements.overlay.addEventListener('pointercancel', pointerUp);
+            this.elements.overlay.addEventListener('pointerout', pointerUp);
         };
         let keyDown = (ev) => {
             if (document.activeElement !== this.elements.viewport) {
