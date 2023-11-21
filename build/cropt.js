@@ -329,17 +329,11 @@ export class Cropt {
         let originalY = 0;
         let pEventCache = [];
         let origPinchDistance = 0;
-        var pointerMove = (ev) => {
+        let pointerMove = (ev) => {
+            ev.preventDefault();
+            // update cached event
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
-            if (cacheIndex === -1) {
-                // can occur when pinch zoom initiated with one pointer outside
-                // the overlay and then moved inside (particularly in Safari).
-                pointerDown(ev);
-            }
-            else {
-                ev.preventDefault();
-                pEventCache[cacheIndex] = ev; // update cached event
-            }
+            pEventCache[cacheIndex] = ev;
             if (pEventCache.length === 2) {
                 let touch1 = pEventCache[0];
                 let touch2 = pEventCache[1];
@@ -357,13 +351,14 @@ export class Cropt {
             originalX = ev.pageX;
             originalY = ev.pageY;
         };
-        var pointerUp = (ev) => {
+        let pointerUp = (ev) => {
             //this.elements.overlay.releasePointerCapture(ev.pointerId);
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
             if (cacheIndex !== -1) {
                 pEventCache.splice(cacheIndex, 1);
             }
             if (pEventCache.length === 0) {
+                this.elements.overlay.removeEventListener('pointerenter', pointerDown);
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointerleave', pointerUp);
@@ -384,11 +379,14 @@ export class Cropt {
             originalX = ev.pageX;
             originalY = ev.pageY;
             this.#setDragState(true, this.elements.preview);
+            // add pointerenter listener to support pinch zoom initiated with
+            // one pointer outside the overlay and then moved inside.
+            this.elements.overlay.addEventListener('pointerenter', pointerDown);
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
             this.elements.overlay.addEventListener('pointerleave', pointerUp);
         };
-        var keyDown = (ev) => {
+        let keyDown = (ev) => {
             if (document.activeElement !== this.elements.viewport) {
                 return;
             }
