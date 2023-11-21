@@ -355,7 +355,7 @@ export class Cropt {
             //this.elements.overlay.releasePointerCapture(ev.pointerId);
             pEventCache.delete(ev.pointerId);
             if (pEventCache.size === 0) {
-                this.elements.overlay.removeEventListener('pointerenter', pointerDown);
+                //this.elements.overlay.removeEventListener('pointerenter', pointerDown);
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointerleave', pointerUp);
@@ -378,7 +378,7 @@ export class Cropt {
             this.#setDragState(true, this.elements.preview);
             // add pointerenter listener to support pinch zoom initiated with
             // one pointer outside the overlay and then moved inside.
-            this.elements.overlay.addEventListener('pointerenter', pointerDown);
+            //this.elements.overlay.addEventListener('pointerenter', pointerDown);
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
             this.elements.overlay.addEventListener('pointerleave', pointerUp);
