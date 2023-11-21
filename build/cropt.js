@@ -358,7 +358,7 @@ export class Cropt {
                 //this.elements.overlay.removeEventListener('pointerenter', pointerDown);
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
-                this.elements.overlay.removeEventListener('pointerleave', pointerUp);
+                this.elements.overlay.removeEventListener('pointerout', pointerUp);
                 this.#setDragState(false, this.elements.preview);
                 origPinchDistance = 0;
             }
@@ -381,7 +381,7 @@ export class Cropt {
             //this.elements.overlay.addEventListener('pointerenter', pointerDown);
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
-            this.elements.overlay.addEventListener('pointerleave', pointerUp);
+            this.elements.overlay.addEventListener('pointerout', pointerUp);
         };
         let keyDown = (ev) => {
             if (document.activeElement !== this.elements.viewport) {
