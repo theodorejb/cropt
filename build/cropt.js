@@ -331,13 +331,14 @@ export class Cropt {
         let origPinchDistance = 0;
         let pointerMove = (ev) => {
             ev.preventDefault();
-            // update cached event
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
             if (cacheIndex === -1) {
+                // can occur when pinch gesture initiated with one pointer outside
+                // the overlay and then moved inside (particularly in Safari).
                 return;
             }
             else {
-                pEventCache[cacheIndex] = ev;
+                pEventCache[cacheIndex] = ev; // update cached event
             }
             if (pEventCache.length === 2) {
                 let touch1 = pEventCache[0];
@@ -357,13 +358,11 @@ export class Cropt {
             originalY = ev.pageY;
         };
         let pointerUp = (ev) => {
-            //this.elements.overlay.releasePointerCapture(ev.pointerId);
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
             if (cacheIndex !== -1) {
                 pEventCache.splice(cacheIndex, 1);
             }
             if (pEventCache.length === 0) {
-                //this.elements.overlay.removeEventListener('pointerenter', pointerDown);
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
                 this.elements.overlay.removeEventListener('pointerout', pointerUp);
@@ -371,7 +370,7 @@ export class Cropt {
                 origPinchDistance = 0;
             }
         };
-        var pointerDown = (ev) => {
+        let pointerDown = (ev) => {
             if (ev.button) {
                 return; // non-left mouse button press
             }
@@ -384,9 +383,6 @@ export class Cropt {
             originalX = ev.pageX;
             originalY = ev.pageY;
             this.#setDragState(true, this.elements.preview);
-            // add pointerenter listener to support pinch zoom initiated with
-            // one pointer outside the overlay and then moved inside.
-            //this.elements.overlay.addEventListener('pointerenter', pointerDown);
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
             this.elements.overlay.addEventListener('pointerout', pointerUp);
