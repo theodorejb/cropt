@@ -333,6 +333,10 @@ export class Cropt {
             ev.preventDefault();
             // update cached event
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
+            if (cacheIndex === -1) {
+                alert("no cache index for pointer move!");
+                return;
+            }
             pEventCache[cacheIndex] = ev;
             if (pEventCache.length === 2) {
                 let touch1 = pEventCache[0];
