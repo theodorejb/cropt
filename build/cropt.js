@@ -331,13 +331,16 @@ export class Cropt {
         let origPinchDistance = 0;
         let pointerMove = (ev) => {
             ev.preventDefault();
-            // update cached event
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
             if (cacheIndex === -1) {
-                alert("no cache index for pointer move!");
-                return;
+                // can occur when pinch zoom initiated with one pointer outside
+                // the overlay and then moved inside (particularly in Safari).
+                pEventCache.push(ev);
+                this.elements.overlay.setPointerCapture(ev.pointerId);
             }
-            pEventCache[cacheIndex] = ev;
+            else {
+                pEventCache[cacheIndex] = ev; // update cached event
+            }
             if (pEventCache.length === 2) {
                 let touch1 = pEventCache[0];
                 let touch2 = pEventCache[1];
