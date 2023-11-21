@@ -329,16 +329,15 @@ export class Cropt {
         let originalY = 0;
         let pEventCache = [];
         let origPinchDistance = 0;
-        let pointerMove = (ev) => {
-            ev.preventDefault();
+        var pointerMove = (ev) => {
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
             if (cacheIndex === -1) {
                 // can occur when pinch zoom initiated with one pointer outside
                 // the overlay and then moved inside (particularly in Safari).
-                pEventCache.push(ev);
-                this.elements.overlay.setPointerCapture(ev.pointerId);
+                pointerDown(ev);
             }
             else {
+                ev.preventDefault();
                 pEventCache[cacheIndex] = ev; // update cached event
             }
             if (pEventCache.length === 2) {
@@ -358,7 +357,8 @@ export class Cropt {
             originalX = ev.pageX;
             originalY = ev.pageY;
         };
-        let pointerUp = (ev) => {
+        var pointerUp = (ev) => {
+            //this.elements.overlay.releasePointerCapture(ev.pointerId);
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
             if (cacheIndex !== -1) {
                 pEventCache.splice(cacheIndex, 1);
@@ -366,12 +366,12 @@ export class Cropt {
             if (pEventCache.length === 0) {
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
-                this.elements.overlay.removeEventListener('pointerout', pointerUp);
+                this.elements.overlay.removeEventListener('pointerleave', pointerUp);
                 this.#setDragState(false, this.elements.preview);
                 origPinchDistance = 0;
             }
         };
-        let pointerDown = (ev) => {
+        var pointerDown = (ev) => {
             if (ev.button) {
                 return; // non-left mouse button press
             }
@@ -386,9 +386,9 @@ export class Cropt {
             this.#setDragState(true, this.elements.preview);
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
-            this.elements.overlay.addEventListener('pointerout', pointerUp);
+            this.elements.overlay.addEventListener('pointerleave', pointerUp);
         };
-        let keyDown = (ev) => {
+        var keyDown = (ev) => {
             if (document.activeElement !== this.elements.viewport) {
                 return;
             }
