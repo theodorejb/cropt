@@ -444,10 +444,15 @@ export class Cropt {
 
         let pointerMove = (ev: PointerEvent) => {
             ev.preventDefault();
-
-            // update cached event
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
-            pEventCache[cacheIndex] = ev;
+
+            if (cacheIndex === -1) {
+                // can occur when pinch gesture initiated with one pointer outside
+                // the overlay and then moved inside (particularly in Safari).
+                return;
+            } else {
+                pEventCache[cacheIndex] = ev; // update cached event
+            }
 
             if (pEventCache.length === 2) {
                 let touch1 = pEventCache[0];
@@ -471,13 +476,15 @@ export class Cropt {
 
         let pointerUp = (ev: PointerEvent) => {
             const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
-            pEventCache.splice(cacheIndex, 1);
-            this.elements.overlay.releasePointerCapture(ev.pointerId);
+
+            if (cacheIndex !== -1) {
+                pEventCache.splice(cacheIndex, 1);
+            }
 
             if (pEventCache.length === 0) {
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
-                this.elements.overlay.removeEventListener('pointercancel', pointerUp);
+                this.elements.overlay.removeEventListener('pointerout', pointerUp);
 
                 this.#setDragState(false, this.elements.preview);
                 origPinchDistance = 0;
@@ -503,7 +510,7 @@ export class Cropt {
 
             this.elements.overlay.addEventListener('pointermove', pointerMove);
             this.elements.overlay.addEventListener('pointerup', pointerUp);
-            this.elements.overlay.addEventListener('pointercancel', pointerUp);
+            this.elements.overlay.addEventListener('pointerout', pointerUp);
         };
 
         let keyDown = (ev: KeyboardEvent) => {
