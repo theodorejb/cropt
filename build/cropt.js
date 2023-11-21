@@ -94,8 +94,8 @@ export class Cropt {
     options = {
         mouseWheelZoom: "on",
         viewport: {
-            width: 200,
-            height: 200,
+            width: 220,
+            height: 220,
             type: 'square',
         },
         zoomerInputClass: 'cr-slider',

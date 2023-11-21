@@ -23,8 +23,8 @@ const outputSize = 500;
 let photoSrc = "photos/" + photos[Math.floor(Math.random() * photos.length)];
 let options = {
     viewport: {
-        width: 200,
-        height: 200,
+        width: 220,
+        height: 220,
         type: "circle",
     },
     mouseWheelZoom: "on",
