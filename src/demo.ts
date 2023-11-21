@@ -12,7 +12,7 @@ function popupResult(src: string, viewport: string) {
         throw new Error("bodyEl is null");
     }
 
-    bodyEl.innerHTML = `<img src="${src}" class="${imgClass}" style="max-width: 280px; max-height: 280px;" />`;
+    bodyEl.innerHTML = `<img src="${src}" class="img-fluid ${imgClass}" width="320" />`;
     resultModal.show();
 }
 
@@ -20,12 +20,14 @@ let photos = [
     "girl-piano.jpg",
     "hiker.jpg",
     "kitten.jpg",
+    "red-panda.webp",
     "toucan.jpg",
     "woman-dog.jpg",
 ];
 
 const cropElId = "crop-demo";
 const resultBtnId = "result-btn";
+const outputSize = 500;
 let photoSrc = "photos/" + photos[Math.floor(Math.random() * photos.length)];
 
 let options: CroptOptions = {
@@ -51,7 +53,7 @@ const cropt = new Cropt(cropEl, ${optionStr});
 cropt.bind("${photoSrc}");
 
 resultBtn.addEventListener("click", () => {
-    cropt.toCanvas(400).then((canvas) => {
+    cropt.toCanvas(${outputSize}).then((canvas) => {
         let url = canvas.toDataURL();
         // Data URL can be set as the src of an image element.
         // Display in modal dialog.
@@ -81,7 +83,7 @@ function demoMain () {
     cropt.bind(photoSrc);
 
     resultBtn.onclick = function () {
-        cropt.toCanvas(400).then(function (canvas) {
+        cropt.toCanvas(outputSize).then(function (canvas) {
             popupResult(canvas.toDataURL(), cropt.options.viewport.type);
         });
     };
