@@ -327,16 +327,16 @@ export class Cropt {
     #initDraggable() {
         let originalX = 0;
         let originalY = 0;
-        let pEventCache = [];
+        let pEventCache = new Map();
         let origPinchDistance = 0;
         let pointerMove = (ev) => {
             ev.preventDefault();
             // update cached event
-            const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
-            pEventCache[cacheIndex] = ev;
-            if (pEventCache.length === 2) {
-                let touch1 = pEventCache[0];
-                let touch2 = pEventCache[1];
+            pEventCache.set(ev.pointerId, ev);
+            if (pEventCache.size === 2) {
+                const events = pEventCache.entries();
+                let touch1 = events.next().value;
+                let touch2 = events.next().value;
                 let dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
                 if (origPinchDistance === 0) {
                     origPinchDistance = dist / this.#scale;
@@ -353,11 +353,8 @@ export class Cropt {
         };
         let pointerUp = (ev) => {
             //this.elements.overlay.releasePointerCapture(ev.pointerId);
-            const cacheIndex = pEventCache.findIndex((cEv) => cEv.pointerId === ev.pointerId);
-            if (cacheIndex !== -1) {
-                pEventCache.splice(cacheIndex, 1);
-            }
-            if (pEventCache.length === 0) {
+            pEventCache.delete(ev.pointerId);
+            if (pEventCache.size === 0) {
                 this.elements.overlay.removeEventListener('pointerenter', pointerDown);
                 this.elements.overlay.removeEventListener('pointermove', pointerMove);
                 this.elements.overlay.removeEventListener('pointerup', pointerUp);
@@ -371,9 +368,9 @@ export class Cropt {
                 return; // non-left mouse button press
             }
             ev.preventDefault();
-            pEventCache.push(ev);
+            pEventCache.set(ev.pointerId, ev);
             this.elements.overlay.setPointerCapture(ev.pointerId);
-            if (pEventCache.length > 1) {
+            if (pEventCache.size > 1) {
                 return; // ignore additional pointers
             }
             originalX = ev.pageX;
