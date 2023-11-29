@@ -12,7 +12,7 @@ function popupResult(src: string, viewport: string) {
         throw new Error("bodyEl is null");
     }
 
-    bodyEl.innerHTML = `<img src="${src}" class="img-fluid ${imgClass}" width="320" />`;
+    bodyEl.innerHTML = `<img src="${src}" class="${imgClass}" style="max-width: min(100%, 320px); max-height: 320px;" />`;
     resultModal.show();
 }
 
