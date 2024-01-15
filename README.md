@@ -49,7 +49,7 @@ Defines the size and shape of the crop box.
 Type: `string`  
 Default value: `"cr-slider"`
 
-Optionally set a different class on the zoom range input to customize styling.
+Optionally set a different class on the zoom range input to customize styling (e.g. set to `"form-range"` when using Bootstrap).
 
 ## Methods
 
