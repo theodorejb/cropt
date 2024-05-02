@@ -382,10 +382,10 @@ export class Cropt {
             // clear oc
             octx.clearRect(0, 0, curWidth, curHeight);
 
-            octx.drawImage(oc, 0, 0, curWidth, curHeight, 0, 0, cur.width, cur.height);
+            octx.drawImage(buffer, 0, 0, curWidth, curHeight, 0, 0, cur.width, cur.height);
         }
 
-        ctx.drawImage(buffer, 0, 0, cur.width, cur.height, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(oc, 0, 0, cur.width, cur.height, 0, 0, canvas.width, canvas.height);
         return canvas;
     }
 
