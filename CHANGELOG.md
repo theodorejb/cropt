@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.9] - 2024-06-26
+
+### Fixed
+- Image content is no longer doubled when resizing a large image with transparency ([#1]).
+
 ## [0.8.8] - 2023-11-21
 
 ### Fixed
@@ -53,8 +58,9 @@ This is the initial pre-release after forking from [Foliotek/Croppie](https://gi
 - `enableResize` option.
 - `showZoomer` option (hide via CSS instead if desired).
 
-
-[Unreleased]: https://github.com/theodorejb/cropt/compare/v0.8.8...HEAD
+[#1]: https://github.com/theodorejb/cropt/pull/1
+[Unreleased]: https://github.com/theodorejb/cropt/compare/v0.8.9...HEAD
+[0.8.9]: https://github.com/theodorejb/cropt/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/theodorejb/cropt/compare/v0.8.6...v0.8.8
 [0.8.6]: https://github.com/theodorejb/cropt/compare/v0.8.4...v0.8.6
 [0.8.4]: https://github.com/theodorejb/cropt/releases/tag/v0.8.4
