@@ -262,11 +262,13 @@ export class Cropt {
     #getCanvas(points, width, height) {
         var oc = this.#getUnscaledCanvas(points);
         var octx = oc.getContext('2d');
+        var buffer = document.createElement('canvas');
+        var bctx = buffer.getContext("2d");
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext("2d");
         canvas.width = width;
         canvas.height = height;
-        if (ctx === null || octx === null) {
+        if (ctx === null || octx === null || bctx === null) {
             throw new Error("Canvas context cannot be null");
         }
         var cur = {
@@ -281,7 +283,14 @@ export class Cropt {
                 width: Math.floor(cur.width * 0.5),
                 height: Math.floor(cur.height * 0.5)
             };
-            octx.drawImage(oc, 0, 0, curWidth, curHeight, 0, 0, cur.width, cur.height);
+            // write oc to buffer
+            buffer.width = curWidth;
+            buffer.height = curHeight;
+            bctx.clearRect(0, 0, buffer.width, buffer.height);
+            bctx.drawImage(oc, 0, 0);
+            // clear oc
+            octx.clearRect(0, 0, curWidth, curHeight);
+            octx.drawImage(buffer, 0, 0, curWidth, curHeight, 0, 0, cur.width, cur.height);
         }
         ctx.drawImage(oc, 0, 0, cur.width, cur.height, 0, 0, canvas.width, canvas.height);
         return canvas;
