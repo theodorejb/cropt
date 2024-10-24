@@ -62,7 +62,7 @@ This is the initial pre-release after forking from [Foliotek/Croppie](https://gi
 
 [#1]: https://github.com/theodorejb/cropt/pull/1
 [#5]: https://github.com/theodorejb/cropt/pull/5
-[Unreleased]: https://github.com/theodorejb/cropt/compare/v0.8.9...HEAD
+[0.9.0]: https://github.com/theodorejb/cropt/compare/v0.8.9...v0.9.0
 [0.8.9]: https://github.com/theodorejb/cropt/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/theodorejb/cropt/compare/v0.8.6...v0.8.8
 [0.8.6]: https://github.com/theodorejb/cropt/compare/v0.8.4...v0.8.6
