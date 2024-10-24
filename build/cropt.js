@@ -324,12 +324,10 @@ export class Cropt {
         const imgRect = this.elements.preview.getBoundingClientRect();
         const vpRect = this.elements.viewport.getBoundingClientRect();
         const transform = Transform.parse(this.elements.preview);
-        if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-            transform.y = transform.y + deltaY;
-        }
-        if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
-            transform.x = transform.x + deltaX;
-        }
+        const clampedDeltaY = Math.max(Math.min(vpRect.top - imgRect.top, deltaY), vpRect.bottom - imgRect.bottom);
+        const clampedDeltaX = Math.max(Math.min(vpRect.left - imgRect.left, deltaX), vpRect.right - imgRect.right);
+        transform.y += clampedDeltaY;
+        transform.x += clampedDeltaX;
         this.#updateCenterPoint(transform);
         this.#updateOverlayDebounced();
     }
