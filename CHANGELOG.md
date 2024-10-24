@@ -1,12 +1,16 @@
 # Changelog
 
-## [0.8.9] - 2024-06-26
+## [0.9.0] - 2024-10-23
+### Fixed
+- Cropt now clamps image drags to the viewport boundary, rather than ignoring the delta if it would go past the boundary. This fixes unexpected gaps between the image and viewport edges. ([#5]).
 
+
+## [0.8.9] - 2024-06-26
 ### Fixed
 - Image content is no longer doubled when resizing a large image with transparency ([#1]).
 
-## [0.8.8] - 2023-11-21
 
+## [0.8.8] - 2023-11-21
 ### Fixed
 - Correctly handle uncached pointer move events.
     - Resolves janky behavior in Safari when a pinch zoom is initiated with one pointer outside the preview image.
@@ -16,13 +20,11 @@
 
 
 ## [0.8.6] - 2023-11-14
-
 ### Changed
 - For browsers that don't support WebP output (Safari), fall back to JPEG instead of PNG when `quality < 1` to avoid unexpectedly large files.
 
 
 ## [0.8.4] - 2023-11-12
-
 This is the initial pre-release after forking from [Foliotek/Croppie](https://github.com/Foliotek/Croppie) v2.6.5.
 
 ### Added
@@ -59,6 +61,7 @@ This is the initial pre-release after forking from [Foliotek/Croppie](https://gi
 - `showZoomer` option (hide via CSS instead if desired).
 
 [#1]: https://github.com/theodorejb/cropt/pull/1
+[#5]: https://github.com/theodorejb/cropt/pull/5
 [Unreleased]: https://github.com/theodorejb/cropt/compare/v0.8.9...HEAD
 [0.8.9]: https://github.com/theodorejb/cropt/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/theodorejb/cropt/compare/v0.8.6...v0.8.8
